@@ -18,6 +18,10 @@ var_info <- tibble(
 )
 exp <- experiment(expr_mat, sample_info, var_info, exp_type = "glycomics", glycan_type = "N")
 
+rela_exp <- exp |>
+  impute_miss_forest() |>
+  normalize_total_area()
+
 clean_exp <- auto_clean(exp)
 
 glycowork_data <- read_csv("data/benchmark/CLRALR_glycowork.csv") |>
@@ -33,13 +37,14 @@ glycowork_data <- read_csv("data/benchmark/CLRALR_glycowork.csv") |>
 
 plot_data <- bind_rows(
   as_tibble(exp) |> mutate(type = "raw"),
+  as_tibble(rela_exp) |> mutate(type = "relative"),
   as_tibble(clean_exp) |> mutate(type = "glyclean"),
-  glycowork_data |> mutate(type = "glycowork")
+  glycowork_data |> mutate(type = "glycowork"),
 ) |>
   mutate(group = str_split_i(sample, "_", 1L)) |>
   mutate(
     group = factor(group, levels = c("2pmol", "6pmol", "12pmol", "18pmol")),
-    type = factor(type, levels = c("raw", "glycowork", "glyclean"))
+    type = factor(type, levels = c("raw", "relative", "glycowork", "glyclean"))
   )
 
 bar_plot <- ggplot(plot_data, aes(as.character(glycan_composition), value)) +
@@ -49,7 +54,8 @@ bar_plot <- ggplot(plot_data, aes(as.character(glycan_composition), value)) +
   facet_wrap(~ type, ncol = 1, scale = "free_y") +
   theme_bw() +
   theme(
-    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    axis.title.x = element_blank(),
   )
 ggimage::ggpreview(plot = bar_plot, width = 6, height = 6)
 ggsave("results/figures/glyclean_barplot.pdf", bar_plot, width = 6, height = 6)
