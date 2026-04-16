@@ -30,6 +30,8 @@ res_df <- glymotif_result |>
   mutate(glygen = if_else(is.na(glygen), FALSE, glygen)) |>
   relocate(glytoucan_ac, glycan_structure, motif_name, glymotif, glygen)
 
+write_csv(res_df, "results/data/glymotif_vs_glygen.csv")
+
 sens_data <- res_df |>
   filter(glygen) |>
   summarise(sensitivity = mean(glymotif), .by = motif_name)
