@@ -22,14 +22,13 @@ write_csv(glycans_glycowork, "data/benchmark/glycans_glycowork.csv")
 write_csv(motifs_glycowork, "data/benchmark/motifs_glycowork.csv")
 
 # Run glymotif-----
-glymotif_result <- have_motifs(glycans, motifs)
+glymotif_result <- count_motifs(glycans, motifs)
 colnames(glymotif_result) <- motifs
 
 # Merge results-----
 glycowork_result <- read_csv("data/benchmark/glycowork_motif_annotations.csv") |>
   rename(glycan = ...1) |>
   pivot_longer(-glycan, names_to = "motif", values_to = "glycowork") |>
-  mutate(glycowork = glycowork > 0) |>
   mutate(
     glycan = paste0(glycan, "(??-"),
     motif = paste0(motif, "(??-")
@@ -42,6 +41,6 @@ result_data <- glymotif_result |>
   inner_join(glycowork_result, by = join_by(glycan, motif))
 
 result_data |>
-  filter(glymotif != glycowork)
+  filter(glymotif != glycowork)  # 3,153
 
-write_csv(result_data, "data/benchmark/glymotif_vs_glycowork_comparison.csv")
+write_csv(result_data, "results/data/glymotif_vs_glycowork.csv")
