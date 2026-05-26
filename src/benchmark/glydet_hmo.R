@@ -1,5 +1,6 @@
 library(glycoverse)
 library(tidyverse)
+library(geepack)
 
 # Load and preprocess the data-----
 ## Expression matrix-----
@@ -57,13 +58,53 @@ ratio_data <- motif_data |>
     ratio_x62_x40 = X62 / X40,
     ratio_x106_x62 = X106 / X62,
   ) |>
-  select(patient, dpp, group, starts_with("ratio"))
+  select(patient, dpp, group, starts_with("ratio")) |>
+  pivot_longer(starts_with("ratio"), names_to = "ratio", values_to = "value")
 
-motif_plots <- motif_data |>
-  mutate(motif = factor(motif, levels = c("X40", "X62", "X106", "X141"))) |>
+gee_models <- bind_rows(
+  motif_data |> select(patient, dpp, group, motif, value),
+  ratio_data |>
+    select(patient, dpp, group, motif = ratio, value) |>
+    mutate(motif = recode_values(motif, "ratio_x62_x40" ~ "X62 / X40", "ratio_x106_x62" ~ "X106 / X62"))
+) |>
+  mutate(log_dpp = log10(dpp)) |>
+  arrange(patient, log_dpp) |>
+  mutate(
+    group = as.factor(group),
+    patient = as.factor(patient)
+  ) |>
+  nest_by(motif) |>
+  mutate(
+    model = list(geeglm(
+      value ~ log_dpp + group,
+      id = patient,
+      data = data,
+      family = gaussian(link = "identity"),
+      corstr = "exchangeable")
+    ),
+    summary = list(tidy(model))
+  ) |>
+  unnest(summary) |>
+  select(-data) |>
+  filter(term == "groupsecretor") |>
+  ungroup() |>
+  mutate(p.adj = p.adjust(p.value, method = "BH"))
+
+motif_plots <- bind_rows(
+  motif_data |> select(patient, dpp, group, motif, value),
+  ratio_data |>
+    select(patient, dpp, group, motif = ratio, value) |>
+    mutate(motif = recode_values(motif, "ratio_x62_x40" ~ "X62 / X40", "ratio_x106_x62" ~ "X106 / X62"))
+) |>
+  mutate(motif = factor(motif, levels = c("X40", "X62", "X106", "X141", "X62 / X40", "X106 / X62"))) |>
   ggplot(aes(x = log(dpp), y = value)) +
   geom_point(aes(color = group, shape = patient)) +
-  geom_smooth(aes(color = group, fill = group), method = "lm", alpha = 0.1) +
+  geom_smooth(
+    aes(color = group, fill = group),
+    method = "glm",
+    method.args = list(family = gaussian(link = "identity")),
+    alpha = 0.1
+  ) +
   facet_wrap(~motif, scales = "free_y", nrow = 1) +
   guides(shape = guide_legend(nrow = 1)) +
   labs(x = "log(DPP)", y = "Relative Abundance") +
@@ -74,8 +115,8 @@ motif_plots <- motif_data |>
     strip.background = element_blank(),
     legend.position = "bottom"
   )
-ggimage::ggpreview(plot = motif_plots, width = 8, height = 3)
-ggsave("results/figures/bao2021_motif_quant.pdf", motif_plots, width = 8, height = 3)
+ggimage::ggpreview(plot = motif_plots, width = 10, height = 2.5)
+ggsave("results/figures/bao2021_motif_quant.pdf", motif_plots, width = 10, height = 2.5)
 
 export_cartoons(motifs, "results/figures/bao2021_motifs")
 
