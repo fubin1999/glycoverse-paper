@@ -45,8 +45,7 @@ clean_exp <- exp |> normalize_total_area()
 motifs <- c(
   "X40" = "Gal(b1-3)GlcNAc(b1-3)Gal(b1-4)Glc(?1-",
   "X62" = "Gal(b1-3)[Neu5Ac(a2-6)]GlcNAc(b1-3)Gal(b1-4)Glc(?1-",
-  "X106" = "Neu5Ac(a2-3)Gal(b1-3)[Neu5Ac(a2-6)]GlcNAc(b1-3)Gal(b1-4)Glc(?1-",
-  "X141" = "Neu5Ac(a2-3)Gal(b1-3)[Neu5Ac(a2-6)]GlcNAc(b1-3)[Gal(b1-4)GlcNAc(b1-6)]Gal(b1-4)Glc(?1-"
+  "X106" = "Neu5Ac(a2-3)Gal(b1-3)[Neu5Ac(a2-6)]GlcNAc(b1-3)Gal(b1-4)Glc(?1-"
 )
 motif_exp <- quantify_motifs(clean_exp, motifs, alignments = "core")
 motif_data <- as_tibble(motif_exp) |> select(-sample, -variable)
@@ -96,7 +95,7 @@ motif_plots <- bind_rows(
     select(patient, dpp, group, motif = ratio, value) |>
     mutate(motif = recode_values(motif, "ratio_x62_x40" ~ "X62 / X40", "ratio_x106_x62" ~ "X106 / X62"))
 ) |>
-  mutate(motif = factor(motif, levels = c("X40", "X62", "X106", "X141", "X62 / X40", "X106 / X62"))) |>
+  mutate(motif = factor(motif, levels = c("X40", "X62", "X106", "X62 / X40", "X106 / X62"))) |>
   ggplot(aes(x = log(dpp), y = value)) +
   geom_point(aes(color = group, shape = patient)) +
   geom_smooth(
@@ -115,14 +114,14 @@ motif_plots <- bind_rows(
     strip.background = element_blank(),
     legend.position = "bottom"
   )
-ggimage::ggpreview(plot = motif_plots, width = 10, height = 2.5)
-ggsave("results/figures/bao2021_motif_quant.pdf", motif_plots, width = 10, height = 2.5)
+ggimage::ggpreview(plot = motif_plots, width = 8, height = 2.5)
+ggsave("results/figures/bao2021_motif_quant.pdf", motif_plots, width = 8, height = 2.5)
 
 export_cartoons(motifs, "results/figures/bao2021_motifs")
 
 glycan_plots <- as_tibble(clean_exp) |>
-  filter(variable %in% c("LNT", "LSTb", "DSLNT", "DSLNH")) |>
-  mutate(variable = factor(variable, levels = c("LNT", "LSTb", "DSLNT", "DSLNH"))) |>
+  filter(variable %in% c("LNT", "LSTb", "DSLNT")) |>
+  mutate(variable = factor(variable, levels = c("LNT", "LSTb", "DSLNT"))) |>
   ggplot(aes(x = log(dpp), y = value)) +
   geom_point(aes(color = group, shape = patient)) +
   geom_smooth(aes(color = group, fill = group), method = "lm", alpha = 0.1) +
