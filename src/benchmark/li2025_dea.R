@@ -82,4 +82,4 @@ glycowork_diff_glycans <- glycowork_res |>
   filter(significant) |>
   pull(Glycan)
 
-length(intersect(dea_diff_glycans, glycowork_diff_glycans))
+length(intersect(coda_dea_diff_glycans, glycowork_diff_glycans))
