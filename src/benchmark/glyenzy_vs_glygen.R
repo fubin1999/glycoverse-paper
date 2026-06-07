@@ -49,6 +49,7 @@ glygen_anno_df <- glygen_data |>
 anno_df <- inner_join(glyenzy_anno_df, glygen_anno_df, by = c("enzyme_gene", "glytoucan_ac"))
 
 write_csv(anno_df, "results/data/glyenzy_vs_glygen.csv")
+anno_df <- read_csv("results/data/glyenzy_vs_glygen.csv")
 
 anno_df |>
   summarise(accuracy = mean(glyenzy == glygen))
@@ -67,3 +68,29 @@ conf_mat <- anno_df |>
     panel.grid = element_blank()
   )
 ggsave("results/figures/glyenzy_vs_glygen_conf_mat.pdf", conf_mat, width = 3, height = 3)
+
+enzymes_to_plot <- anno_df |>
+  filter(glygen != glyenzy) |>
+  summarise(n = n(), .by = enzyme_gene) |>
+  slice_max(n, n = 15) |>
+  pull(enzyme_gene)
+
+discrepancy_plot <- anno_df |>
+  filter(glygen != glyenzy) |>
+  filter(enzyme_gene %in% enzymes_to_plot) |>
+  mutate(discrepancy = if_else(glygen, "GlyGen only", "glyenzy only")) |>
+  summarise(n = n(), .by = c(enzyme_gene, discrepancy)) |>
+  ggplot(aes(x = reorder(enzyme_gene, desc(n)), y = n, fill = discrepancy)) +
+  geom_col(position = "stack") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  scale_fill_manual(values = c("GlyGen only" = "#eca567", "glyenzy only" = "#79add2")) +
+  labs(x = "Enzyme gene", y = "Number of discrepancies", fill = "Discrepancy type") +
+  guides(fill = guide_legend(position = "inside")) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.ticks.x = element_blank(),
+    legend.position.inside = c(0.85, 0.7)
+  )
+ggimage::ggpreview(plot = discrepancy_plot, width = 5, height = 3)
+ggsave("results/figures/glyenzy_vs_glygen_discrepancies.pdf", discrepancy_plot, width = 5, height = 3)
