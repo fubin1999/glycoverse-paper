@@ -103,15 +103,15 @@ radar_plot_cartesian <- function(
 
 p_expert1 <- data %>%
   filter(expert == "expert 1") %>%
-  radar_plot_cartesian(task, score, title = "expert 1", color = "#A57BAB", fill_alpha = 0.15)
+  radar_plot_cartesian(task, score, title = "Ph.D student 1", color = "#A57BAB", fill_alpha = 0.15)
 
 p_expert2 <- data %>%
   filter(expert == "expert 2") %>%
-  radar_plot_cartesian(task, score, title = "expert 2", color = "#A57BAB", fill_alpha = 0.15)
+  radar_plot_cartesian(task, score, title = "Ph.D student 2", color = "#A57BAB", fill_alpha = 0.15)
 
 p_expert3 <- data %>%
   filter(expert == "expert 3") %>%
-  radar_plot_cartesian(task, score, title = "expert 3", color = "#A57BAB", fill_alpha = 0.15)
+  radar_plot_cartesian(task, score, title = "Ph.D student 3", color = "#A57BAB", fill_alpha = 0.15)
 
 plot_grid(p_expert1, p_expert2, p_expert3, nrow = 1)
 ggsave("results/figures/expert_assess.pdf", width = 7.5, height = 2.5)
