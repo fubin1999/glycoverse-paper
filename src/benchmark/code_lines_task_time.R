@@ -43,7 +43,17 @@ ggplot(data, (aes(time, fct_rev(task)))) +
 ggpreview(width = 2.5, height = 3)
 ggsave("results/figures/duration.pdf", width = 2.5, height = 3)
 
+total <- data |>
+  summarise(
+    time = sum(time),
+    code_lines = sum(code_lines),
+    .by = c(glycoverse, person)
+  ) |>
+  mutate(task = "total") |>
+  relocate(person, task, glycoverse, time, code_lines)
+
 table <- data |>
+  bind_rows(total) |>
   summarise(
     mean_time = mean(time),
     mean_code_lines = mean(code_lines),
