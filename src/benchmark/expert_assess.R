@@ -5,7 +5,7 @@ library(cowplot)
 data <- tribble(
   ~expert, ~I, ~II, ~III, ~IV, ~V,
   "expert 1", 4, 4, 4, 3, 3,
-  "expert 2", 2, 2, 1, 5, 3,
+  "expert 2", 2, 2, 1, 4, 3,
   "expert 3", 4, 4, 3, 2, 3,
 ) %>%
   pivot_longer(cols = -expert, names_to = "task", values_to = "score")
