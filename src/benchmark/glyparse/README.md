@@ -39,6 +39,7 @@ The stages can be resumed independently:
 Rscript src/benchmark/glyparse.R --stage glyparse
 Rscript src/benchmark/glyparse.R --stage external
 Rscript src/benchmark/glyparse.R --stage adjudicate
+Rscript src/benchmark/glyparse.R --stage report
 ```
 
 Environment overrides:
@@ -51,3 +52,27 @@ Environment overrides:
 
 Generated cache files and final audit artifacts are written to
 `data/benchmark/glyparse_validation`.
+
+Final artifacts include:
+
+- `format_summary.csv` and `parser_benchmark.csv`
+- `external_tool_summary.csv`
+- `parse_failures.csv.gz`, with one detailed reason per failed source row
+- `semantic_disagreements.csv.gz`, with one component-level reason per
+  normalized glyparse/comparator pair
+- `validation_rows.csv.gz`, the complete joined evidence ledger
+- `report.md`, `artifact.json`, and the self-contained `report.html`
+
+The adjudication stage can reuse exact-row diagnostic evidence from a previous
+audit when `GLYPARSE_PRIOR_DIAGNOSTIC_DIR` points to it. If that directory is
+unavailable or the accession plus full source sequence does not match, the
+current internal parser stage is replayed instead.
+
+To package the portable report after running the `report` stage, use the
+Data Analytics report builder:
+
+```sh
+node /path/to/data-analytics/skills/build-report/scripts/deliver_portable_artifact.mjs \
+  --input data/benchmark/glyparse_validation/artifact.json \
+  --output data/benchmark/glyparse_validation/report.html
+```

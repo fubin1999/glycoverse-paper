@@ -7,6 +7,7 @@
 #   Rscript src/benchmark/glyparse.R --stage glyparse
 #   Rscript src/benchmark/glyparse.R --stage external
 #   Rscript src/benchmark/glyparse.R --stage adjudicate
+#   Rscript src/benchmark/glyparse.R --stage report
 
 script_path <- sub(
   "^--file=",
@@ -21,12 +22,15 @@ stage <- "all"
 if (length(arguments) > 0L) {
   if (!identical(arguments[[1L]], "--stage") || length(arguments) != 2L) {
     stop(
-      "Usage: Rscript src/benchmark/glyparse.R [--stage glyparse|external|adjudicate]"
+      paste0(
+        "Usage: Rscript src/benchmark/glyparse.R ",
+        "[--stage glyparse|external|adjudicate|report]"
+      )
     )
   }
   stage <- arguments[[2L]]
 }
-allowed <- c("all", "glyparse", "external", "adjudicate")
+allowed <- c("all", "glyparse", "external", "adjudicate", "report")
 if (!stage %in% allowed) {
   stop("Unknown stage: ", stage)
 }
@@ -49,4 +53,7 @@ if (stage %in% c("all", "external")) {
 }
 if (stage %in% c("all", "adjudicate")) {
   run_r("adjudicate.R")
+}
+if (stage %in% c("all", "report")) {
+  run_r("build-report.R")
 }
