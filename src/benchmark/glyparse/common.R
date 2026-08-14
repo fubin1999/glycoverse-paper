@@ -420,6 +420,72 @@ benchmark_normalize_iupac <- function(values, chunk_size = 1000L) {
   result
 }
 
+benchmark_normalize_iupac_fast <- function(values, chunk_size = 500L) {
+  result <- data.frame(
+    normalization_status = rep("not_attempted", length(values)),
+    normalized_iupac_condensed = rep("", length(values)),
+    normalization_error = rep("", length(values)),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+  available <- which(!is.na(values) & nzchar(values))
+  if (length(available) == 0L) {
+    return(result)
+  }
+  generic_pattern <- paste0(
+    "(?<![[:alnum:]])",
+    "(?:HexNAc|HexN|HexA|Hex|dHex|Pen|Sia|Unk)",
+    "(?=[0-9\\(\\{\\[?]|$)"
+  )
+  generic <- grepl(generic_pattern, values[available], perl = TRUE)
+  groups <- list(available[!generic], available[generic])
+  chunks <- unlist(
+    lapply(groups, function(rows) {
+      if (length(rows) == 0L) {
+        return(list())
+      }
+      split(rows, ceiling(seq_along(rows) / chunk_size))
+    }),
+    recursive = FALSE
+  )
+  parser <- getExportedValue("glyparse", "parse_iupac_condensed")
+  parsed_chunks <- parallel::mclapply(
+    chunks,
+    function(rows) {
+      list(
+        rows = rows,
+        parsed = benchmark_parse_recursive(parser, values[rows])
+      )
+    },
+    mc.cores = benchmark_cores,
+    mc.preschedule = TRUE
+  )
+  completed <- 0L
+  for (chunk in parsed_chunks) {
+    rows <- chunk$rows
+    parsed <- chunk$parsed
+    ok <- parsed$parse_status == "parsed"
+    result$normalization_status[rows] <- ifelse(ok, "normalized", "failed")
+    result$normalized_iupac_condensed[rows] <- parsed$parsed_iupac_condensed
+    result$normalization_error[rows] <- parsed$parse_error
+    completed <- completed + length(rows)
+    if (completed %% 10000L < length(rows)) {
+      message("External normalization: ", completed, "/", length(available))
+    }
+  }
+  failed <- which(
+    result$normalization_status == "failed" &
+      !nzchar(result$normalization_error)
+  )
+  if (length(failed) > 0L) {
+    result$normalization_error[failed] <- paste0(
+      "parse_iupac_condensed() returned NA during vector normalization; ",
+      "the converter output is not comparable in the current canonical model."
+    )
+  }
+  result
+}
+
 benchmark_tool_version <- function(command, arguments = character()) {
   output <- tryCatch(
     system2(command, arguments, stdout = TRUE, stderr = TRUE),

@@ -4,8 +4,10 @@ import argparse
 import csv
 import gzip
 import importlib.metadata
+import multiprocessing
 import os
 import re
+import signal
 import sys
 import time
 import traceback
@@ -29,6 +31,21 @@ FORMATS = {
     ),
     "wurcs": ("glycan_sequences_wurcs.csv", "sequence_wurcs"),
 }
+
+WORKER_TOOL = None
+WORKER_FORMAT = None
+WORKER_WURCS = None
+WORKER_CONVERTER = None
+WORKER_VERSION = None
+WORKER_TIMEOUT = None
+
+
+class ConversionTimeout(TimeoutError):
+    pass
+
+
+def timeout_handler(_signum, _frame):
+    raise ConversionTimeout("Conversion exceeded the per-record time limit")
 
 
 def normalize_error(error):
@@ -125,15 +142,81 @@ def glypy_converter(format_name):
     return convert
 
 
-def run_format(tool, format_name, corpus_dir, output_dir, wurcs_by_accession):
-    file_name, sequence_column = FORMATS[format_name]
-    input_path = os.path.join(corpus_dir, file_name)
-    output_path = os.path.join(output_dir, f"{tool}-{format_name}.csv.gz")
-    converter = (
+def initialize_worker(tool, format_name, wurcs_by_accession, version, timeout):
+    global WORKER_TOOL
+    global WORKER_FORMAT
+    global WORKER_WURCS
+    global WORKER_CONVERTER
+    global WORKER_VERSION
+    global WORKER_TIMEOUT
+    WORKER_TOOL = tool
+    WORKER_FORMAT = format_name
+    WORKER_WURCS = wurcs_by_accession
+    WORKER_VERSION = version
+    WORKER_TIMEOUT = timeout
+    signal.signal(signal.SIGALRM, timeout_handler)
+    WORKER_CONVERTER = (
         glycowork_converter(format_name)
         if tool == "glycowork"
         else glypy_converter(format_name)
     )
+
+
+def convert_record(payload):
+    row_index, accession, sequence = payload
+    captured_warnings = []
+    signal.setitimer(signal.ITIMER_REAL, WORKER_TIMEOUT)
+    try:
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            output, scope = WORKER_CONVERTER(
+                sequence,
+                accession,
+                WORKER_WURCS,
+            )
+            captured_warnings = [str(item.message) for item in caught]
+        if not isinstance(output, str) or not output.strip():
+            raise ValueError("Converter returned an empty result")
+        status = "converted"
+        error = ""
+    except Exception as condition:
+        output = ""
+        scope = (
+            "accession_matched_wurcs_fallback"
+            if WORKER_TOOL == "glypy"
+            and WORKER_FORMAT in {"glycam_iupac", "iupac_compact"}
+            else "direct_source_converter"
+        )
+        status = "failed"
+        error = normalize_error(condition)
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+    return {
+        "tool": WORKER_TOOL,
+        "tool_version": WORKER_VERSION,
+        "format": WORKER_FORMAT,
+        "row_index": row_index,
+        "glytoucan_ac": accession,
+        "evidence_scope": scope,
+        "conversion_status": status,
+        "raw_iupac_condensed": output,
+        "conversion_warning": " | ".join(captured_warnings),
+        "conversion_error": error,
+    }
+
+
+def run_format(
+    tool,
+    format_name,
+    corpus_dir,
+    output_dir,
+    wurcs_by_accession,
+    workers,
+    timeout,
+):
+    file_name, sequence_column = FORMATS[format_name]
+    input_path = os.path.join(corpus_dir, file_name)
+    output_path = os.path.join(output_dir, f"{tool}-{format_name}.csv.gz")
     version = importlib.metadata.version(tool)
     fields = [
         "tool",
@@ -150,56 +233,62 @@ def run_format(tool, format_name, corpus_dir, output_dir, wurcs_by_accession):
     started = time.perf_counter()
     converted = 0
     failed = 0
-    with gzip.open(output_path, "wt", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields)
-        writer.writeheader()
-        for row_index, row in enumerate(read_rows(input_path), start=1):
-            captured_warnings = []
-            try:
-                with warnings.catch_warnings(record=True) as caught:
-                    warnings.simplefilter("always")
-                    output, scope = converter(
-                        row[sequence_column],
-                        row["glytoucan_ac"],
-                        wurcs_by_accession,
-                    )
-                    captured_warnings = [str(item.message) for item in caught]
-                if not isinstance(output, str) or not output.strip():
-                    raise ValueError("Converter returned an empty result")
-                status = "converted"
-                error = ""
-                converted += 1
-            except Exception as condition:
-                output = ""
-                scope = (
-                    "accession_matched_wurcs_fallback"
-                    if tool == "glypy"
-                    and format_name in {"glycam_iupac", "iupac_compact"}
-                    else "direct_source_converter"
-                )
-                status = "failed"
-                error = normalize_error(condition)
-                failed += 1
-            writer.writerow(
-                {
-                    "tool": tool,
-                    "tool_version": version,
-                    "format": format_name,
-                    "row_index": row_index,
-                    "glytoucan_ac": row["glytoucan_ac"],
-                    "evidence_scope": scope,
-                    "conversion_status": status,
-                    "raw_iupac_condensed": output,
-                    "conversion_warning": " | ".join(captured_warnings),
-                    "conversion_error": error,
-                }
-            )
-            if row_index % 1000 == 0:
+    payloads = [
+        (index, row["glytoucan_ac"], row[sequence_column])
+        for index, row in enumerate(read_rows(input_path), start=1)
+    ]
+    if os.path.exists(output_path):
+        try:
+            cached_converted = 0
+            cached_failed = 0
+            cached_rows = 0
+            with gzip.open(output_path, "rt", encoding="utf-8", newline="") as stream:
+                for cached in csv.DictReader(stream):
+                    cached_rows += 1
+                    if cached["conversion_status"] == "converted":
+                        cached_converted += 1
+                    else:
+                        cached_failed += 1
+            if cached_rows == len(payloads):
                 print(
-                    f"{tool} {format_name}: {row_index} rows complete",
+                    f"Reusing complete {tool} {format_name} cache",
                     file=sys.stderr,
                     flush=True,
                 )
+                return {
+                    "tool": tool,
+                    "tool_version": version,
+                    "format": format_name,
+                    "rows": cached_rows,
+                    "converted": cached_converted,
+                    "failed": cached_failed,
+                    "elapsed_seconds": "0.000000",
+                    "rows_per_second": "",
+                }
+        except (EOFError, OSError, KeyError):
+            pass
+    with gzip.open(output_path, "wt", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        with multiprocessing.Pool(
+            processes=workers,
+            initializer=initialize_worker,
+            initargs=(tool, format_name, wurcs_by_accession, version, timeout),
+        ) as pool:
+            results = pool.imap(convert_record, payloads, chunksize=50)
+            for result in results:
+                row_index = result["row_index"]
+                if result["conversion_status"] == "converted":
+                    converted += 1
+                else:
+                    failed += 1
+                writer.writerow(result)
+                if row_index % 1000 == 0:
+                    print(
+                        f"{tool} {format_name}: {row_index} rows complete",
+                        file=sys.stderr,
+                        flush=True,
+                    )
     elapsed = time.perf_counter() - started
     return {
         "tool": tool,
@@ -218,6 +307,8 @@ def main():
     parser.add_argument("--tool", choices=("glycowork", "glypy"), required=True)
     parser.add_argument("--corpus-dir", required=True)
     parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--workers", type=int, default=8)
+    parser.add_argument("--timeout", type=float, default=5.0)
     arguments = parser.parse_args()
     os.makedirs(arguments.output_dir, exist_ok=True)
     csv.field_size_limit(sys.maxsize)
@@ -231,6 +322,8 @@ def main():
                 arguments.corpus_dir,
                 arguments.output_dir,
                 wurcs_by_accession,
+                arguments.workers,
+                arguments.timeout,
             )
         )
     summary_path = os.path.join(

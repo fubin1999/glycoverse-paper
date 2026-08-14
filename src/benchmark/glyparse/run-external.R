@@ -35,7 +35,11 @@ run_python_tool <- function(tool, environment) {
       "--corpus-dir",
       benchmark_corpus_dir,
       "--output-dir",
-      benchmark_cache_dir
+      benchmark_cache_dir,
+      "--workers",
+      as.character(benchmark_cores),
+      "--timeout",
+      "5"
     ),
     env = c(
       paste0("MPLCONFIGDIR=", runtime_cache),
@@ -113,7 +117,7 @@ normalization_input <- vapply(
   normalize_external_notation,
   character(1)
 )
-normalized <- benchmark_normalize_iupac(normalization_input)
+normalized <- benchmark_normalize_iupac_fast(normalization_input)
 normalization_lookup <- data.frame(
   raw_iupac_condensed = unique_outputs,
   normalization_input = normalization_input,

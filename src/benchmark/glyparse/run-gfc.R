@@ -29,7 +29,11 @@ gfc_encode <- function(value) {
   if (!nzchar(value)) {
     return("-")
   }
-  jsonlite::base64_enc(charToRaw(enc2utf8(value)))
+  gsub(
+    "[\r\n]",
+    "",
+    jsonlite::base64_enc(charToRaw(enc2utf8(value)))
+  )
 }
 
 gfc_decode <- function(value) {
