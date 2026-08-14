@@ -133,7 +133,16 @@ canonical_difference_reason <- function(left, right) {
       )
     )
   }
-  if (length(reasons) == 0L || !identical(a$branch_shape, b$branch_shape)) {
+  if (length(reasons) == 0L && identical(a$branch_shape, b$branch_shape)) {
+    reasons <- c(
+      reasons,
+      paste0(
+        "The residue/linkage multisets and unlabeled branch shape match, but ",
+        "residue, substituent, or linkage/anomer labels are assigned to ",
+        "different nodes or edges in the labeled glycan graph."
+      )
+    )
+  } else if (!identical(a$branch_shape, b$branch_shape)) {
     reasons <- c(
       reasons,
       "Canonical topology or residue-to-residue attachment differs after node-order normalization."
