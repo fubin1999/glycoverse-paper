@@ -1,0 +1,8 @@
+"format","format_label","rows","parsed","failed","parse_success_rate","reference_available","reference_equivalent","reference_semantic_difference","validated_or_supported","glyparse_outlier","unresolved"
+"glycam_iupac","GLYCAM-IUPAC",7226,7226,0,1,6816,6816,0,6816,0,410
+"glycoct","GlycoCT",59181,48172,11009,0.813977458981768,19621,19600,1,28951,1,18578
+"gwb","GlycoWorkbench",50780,48088,2692,0.946987002756991,19621,19601,2,19615,0,26972
+"iupac_compact","IUPAC-compact",24193,24175,18,0.999255983135618,19457,19438,1,19623,0,4552
+"iupac_condensed","IUPAC-condensed",19621,19603,18,0.999082615564956,0,0,0,0,0,0
+"iupac_extended","IUPAC-extended",20082,20064,18,0.999103674932776,19483,19465,0,19566,0,453
+"wurcs","WURCS",59184,47559,11625,0.803578669910787,19621,19602,1,29130,1,17207

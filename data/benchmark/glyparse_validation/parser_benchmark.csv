@@ -1,0 +1,8 @@
+"format","parser","mono_type","sample_rows","repeats","median_elapsed_seconds","median_rows_per_second","min_rows_per_second","max_rows_per_second"
+"glycam_iupac","parse_glycam_iupac","concrete",1000,3,49.653,20.1397700038265,19.5798171245081,22.1106860945895
+"glycoct","parse_glycoct","concrete",1000,3,9.88900000000001,101.12245929821,97.1439673596271,101.698362656362
+"gwb","parse_gwb","concrete",1000,3,13.54,73.8552437223045,73.1101038163468,74.310767630229
+"iupac_compact","parse_iupac_compact","concrete",1000,3,8.10399999999981,123.395853899312,118.835412953061,130.992926381975
+"iupac_condensed","parse_iupac_condensed","concrete",1000,3,7.72000000000003,129.533678756476,109.229929000546,139.082058414463
+"iupac_extended","parse_iupac_extended","concrete",1000,3,11.0749999999998,90.2934537246065,90.228277542181,90.4077389024507
+"wurcs","parse_wurcs","concrete",1000,3,10.7650000000001,92.8936367858793,90.9090909090909,95.8129730765555
