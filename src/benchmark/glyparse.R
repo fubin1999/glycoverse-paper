@@ -1,21 +1,52 @@
-library(tidyverse)
-library(glycoverse)
+#!/usr/bin/env Rscript
 
-fully_determined <- read_csv("data/benchmark/text_nomenclatures/glycan_fully_determined.csv")
-glycoct <- read_csv("data/benchmark/text_nomenclatures/glycan_sequences_glycoct.csv") |>
-  mutate(sequence_glycoct = str_replace_all(sequence_glycoct, " ", "\n"))
-wurcs <- read_csv("data/benchmark/text_nomenclatures/glycan_sequences_wurcs.csv")
-iupac_ext <- read_csv("data/benchmark/text_nomenclatures/glycan_sequences_iupac_extended.csv")
-iupac_con <- read_csv("data/benchmark/text_nomenclatures/glycan_sequences_iupac_condensed.csv")
+# Reproducible entry point for the glyparse corpus benchmark.
+#
+# Usage:
+#   Rscript src/benchmark/glyparse.R
+#   Rscript src/benchmark/glyparse.R --stage glyparse
+#   Rscript src/benchmark/glyparse.R --stage external
+#   Rscript src/benchmark/glyparse.R --stage adjudicate
 
-glycoct2 <- fully_determined |>
-  left_join(glycoct) |>
-  filter(!str_detect(sequence_glycoct, "aldi"))
-glycoct2_glycans <- parse_glycoct(glycoct2$sequence_glycoct, on_failure = "na")
-sum(!is.na(glycoct2_glycans)) / length(glycoct2_glycans)
+script_path <- sub(
+  "^--file=",
+  "",
+  grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)[[1L]]
+)
+script_dir <- dirname(normalizePath(script_path, mustWork = TRUE))
+module_dir <- file.path(script_dir, "glyparse")
 
-wurcs2 <- wurcs |>
-  right_join(glycoct2)
-wurcs2_glycans <- parse_wurcs(wurcs2$sequence_wurcs, on_failure = "na")
-sum(!is.na(wurcs2_glycans)) / length(wurcs2_glycans)
-                                     
+arguments <- commandArgs(trailingOnly = TRUE)
+stage <- "all"
+if (length(arguments) > 0L) {
+  if (!identical(arguments[[1L]], "--stage") || length(arguments) != 2L) {
+    stop(
+      "Usage: Rscript src/benchmark/glyparse.R [--stage glyparse|external|adjudicate]"
+    )
+  }
+  stage <- arguments[[2L]]
+}
+allowed <- c("all", "glyparse", "external", "adjudicate")
+if (!stage %in% allowed) {
+  stop("Unknown stage: ", stage)
+}
+
+run_r <- function(name) {
+  status <- system2(
+    file.path(R.home("bin"), "Rscript"),
+    file.path(module_dir, name)
+  )
+  if (!identical(status, 0L)) {
+    stop(name, " failed with exit status ", status)
+  }
+}
+
+if (stage %in% c("all", "glyparse")) {
+  run_r("run-glyparse.R")
+}
+if (stage %in% c("all", "external")) {
+  run_r("run-external.R")
+}
+if (stage %in% c("all", "adjudicate")) {
+  run_r("adjudicate.R")
+}
