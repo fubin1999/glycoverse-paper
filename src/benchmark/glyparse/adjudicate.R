@@ -340,6 +340,42 @@ for (format in formats) {
     "reference_comparison_status"
   )]
 
+  reference_differs <- which(
+    parser$reference_comparison_status == "semantic_difference"
+  )
+  if (length(reference_differs) > 0L) {
+    difference_index <- difference_index + 1L
+    difference_results[[difference_index]] <- data.frame(
+      format = format,
+      row_index = parser$row_index[reference_differs],
+      glytoucan_ac = parser$glytoucan_ac[reference_differs],
+      source_sequence = parser$source_sequence[reference_differs],
+      comparator = "IUPAC-condensed accession reference",
+      evidence_scope = "accession_matched_reference",
+      glyparse_iupac_condensed = parser$parsed_iupac_condensed[
+        reference_differs
+      ],
+      comparator_raw_iupac_condensed = parser$reference_iupac_condensed[
+        reference_differs
+      ],
+      comparator_normalized_iupac_condensed = parser$reference_normalized_iupac_condensed[
+        reference_differs
+      ],
+      difference_reason = vapply(
+        reference_differs,
+        function(index) {
+          canonical_difference_reason(
+            parser$parsed_iupac_condensed[[index]],
+            parser$reference_normalized_iupac_condensed[[index]]
+          )
+        },
+        character(1)
+      ),
+      stringsAsFactors = FALSE,
+      check.names = FALSE
+    )
+  }
+
   external_canonical <- list()
   external_scope <- list()
   for (tool in names(external_tools)) {
