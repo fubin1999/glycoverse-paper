@@ -520,7 +520,7 @@ for (format in formats) {
         ""
       }
 
-      if (ref_diff && direct_reference_hits > 0L) {
+      if (ref_diff[[index]] && direct_reference_hits > 0L) {
         row$adjudication_status[[
           index
         ]] <- "glyparse_reference_difference_supported"
@@ -530,7 +530,9 @@ for (format in formats) {
           " direct normalized external result(s) reproduce the reference glycan."
         )
       } else if (
-        ref_diff && direct_parser_hits > 0L && direct_reference_hits == 0L
+        ref_diff[[index]] &&
+          direct_parser_hits > 0L &&
+          direct_reference_hits == 0L
       ) {
         row$adjudication_status[[index]] <- "reference_difference_supported"
         row$adjudication_basis[[index]] <- paste0(
@@ -538,7 +540,7 @@ for (format in formats) {
           direct_parser_hits,
           " direct normalized external result(s) reproduce the glyparse glycan."
         )
-      } else if (ref_diff) {
+      } else if (ref_diff[[index]]) {
         row$adjudication_status[[index]] <- "unresolved_reference_difference"
         row$adjudication_basis[[index]] <- paste0(
           "glyparse differs from the accession reference; available external ",
@@ -553,10 +555,11 @@ for (format in formats) {
       ) {
         row$adjudication_status[[
           index
-        ]] <- "glyparse_external_consensus_outlier"
+        ]] <- "unresolved_external_consensus_difference"
         row$adjudication_basis[[index]] <- paste0(
           "At least two direct external converters agree with each other and ",
-          "differ from glyparse; no accession reference is available."
+          "differ from glyparse, but shared external information loss cannot ",
+          "be excluded without an accession reference."
         )
       } else if (direct_parser_hits > 0L) {
         row$adjudication_status[[index]] <- "supported_by_external_result"
@@ -618,10 +621,7 @@ for (format in formats) {
     ),
     glyparse_outlier = sum(
       row$adjudication_status %in%
-        c(
-          "glyparse_reference_difference_supported",
-          "glyparse_external_consensus_outlier"
-        )
+        c("glyparse_reference_difference_supported")
     ),
     unresolved = sum(grepl("^unresolved", row$adjudication_status)),
     stringsAsFactors = FALSE,
@@ -629,7 +629,19 @@ for (format in formats) {
   )
 }
 
-row_results <- do.call(rbind, row_results)
+rbind_fill <- function(tables) {
+  fields <- Reduce(union, lapply(tables, names))
+  tables <- lapply(tables, function(table) {
+    missing <- setdiff(fields, names(table))
+    for (field in missing) {
+      table[[field]] <- ""
+    }
+    table[, fields, drop = FALSE]
+  })
+  do.call(rbind, tables)
+}
+
+row_results <- rbind_fill(row_results)
 failure_results <- do.call(rbind, failure_results)
 difference_results <- if (length(difference_results) == 0L) {
   data.frame()
