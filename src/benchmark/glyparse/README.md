@@ -16,10 +16,16 @@ evenly spaced sample, and preserves one result row per source row.
    normalized through current `parse_iupac_condensed()`. Converter availability,
    conversion success, normalization success, and semantic agreement are
    separate fields.
-4. Canonical glyrepr serialization is the primary semantic key. It removes
-   non-semantic branch and node-order differences while preserving residue
-   identities, substituents, linkages, reducing-end anomer/alditol state,
-   floating components, floating parent domains, and floating substituents.
+4. Canonical glyrepr serialization is the primary semantic key. Accession
+   references and GlycanFormatConverter are compared strictly. Because
+   glycowork and glypy do not encode the reducing-end anomer, their comparison
+   keys remove the terminal reducing-end token from both the glyparse and tool
+   canonical strings (for example, `Gal(b1-3)GalNAc(a1-` and
+   `Gal(b1-3)GalNAc(?1-` are both compared as `Gal(b1-3)GalNAc`). Full
+   normalized strings and explicit comparison keys are retained for audit.
+   Internal anomers/linkages, residue identities, substituents, topology,
+   reducing-end alditol state, floating components, floating parent domains,
+   and floating substituents remain part of the semantic comparison.
 5. A difference is assigned to glyparse only when the parsed accession-matched
    reference or a supported external consensus demonstrates that glyparse is
    the outlier. External information loss and unsupported syntax remain external
@@ -51,7 +57,7 @@ Environment overrides:
 - `GLYPARSE_BENCHMARK_ROOT`
 
 Generated cache files and final audit artifacts are written to
-`data/benchmark/glyparse_validation`.
+`results/data/glyparse_validation`.
 
 Final artifacts include:
 
@@ -68,11 +74,15 @@ audit when `GLYPARSE_PRIOR_DIAGNOSTIC_DIR` points to it. If that directory is
 unavailable or the accession plus full source sequence does not match, the
 current internal parser stage is replayed instead.
 
+Python converter caches are reused only when every cached row records the same
+installed tool version as the active conda environment. A glycowork or glypy
+upgrade therefore forces fresh raw conversion before normalization.
+
 To package the portable report after running the `report` stage, use the
 Data Analytics report builder:
 
 ```sh
 node /path/to/data-analytics/skills/build-report/scripts/deliver_portable_artifact.mjs \
-  --input data/benchmark/glyparse_validation/artifact.json \
-  --output data/benchmark/glyparse_validation/report.html
+  --input results/data/glyparse_validation/artifact.json \
+  --output results/data/glyparse_validation/report.html
 ```

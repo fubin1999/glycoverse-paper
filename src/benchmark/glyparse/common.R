@@ -23,8 +23,8 @@ benchmark_corpus_dir <- file.path(
 )
 benchmark_output_dir <- file.path(
   benchmark_project_dir,
+  "results",
   "data",
-  "benchmark",
   "glyparse_validation"
 )
 benchmark_cache_dir <- file.path(benchmark_output_dir, "cache")

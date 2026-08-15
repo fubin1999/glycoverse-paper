@@ -55,6 +55,11 @@ tool_summary$format_label <- format_summary$format_label[
 parser_benchmark$format_label <- format_summary$format_label[
   match(parser_benchmark$format, format_summary$format)
 ]
+tool_versions <- vapply(
+  c("GlycanFormatConverter", "glycowork", "glypy"),
+  function(tool) unique(tool_summary$tool_version[tool_summary$tool == tool])[[1L]],
+  character(1)
+)
 
 total_rows <- sum(format_summary$rows)
 total_parsed <- sum(format_summary$parsed)
@@ -183,9 +188,17 @@ scope_body <- paste(
   c(
     "## Scope and definitions",
     "",
-    "IUPAC-condensed input is assessed only for parse coverage and performance, as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter 2.10.3, glycowork 1.8.0, and glypy 1.0.17.",
+    paste0(
+      "IUPAC-condensed input is assessed only for parse coverage and performance, as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter ",
+      tool_versions[["GlycanFormatConverter"]],
+      ", glycowork ",
+      tool_versions[["glycowork"]],
+      ", and glypy ",
+      tool_versions[["glypy"]],
+      "."
+    ),
     "",
-    "A semantic comparison requires both sides to normalize successfully through the current `parse_iupac_condensed()` and then have identical glyrepr canonical serialization. This removes branch and node-order differences while preserving residue identity, substituents, topology, linkages, reducing-end anomer and alditol state, floating components, and candidate-parent domains."
+    "A semantic comparison requires both sides to normalize successfully through the current `parse_iupac_condensed()`. Accession references and GlycanFormatConverter use strict glyrepr canonical equality. Because glycowork and glypy do not encode the reducing-end anomer, their comparison keys remove the terminal reducing-end token from both normalized strings. This makes `Gal(b1-3)GalNAc(a1-` and `Gal(b1-3)GalNAc(?1-` equivalent while retaining internal anomers/linkages, residue identity, substituents, topology, reducing-end alditol state, floating components, and candidate-parent domains."
   ),
   collapse = "\n"
 )
@@ -193,7 +206,7 @@ methodology_body <- paste(
   c(
     "## Methodology",
     "",
-    "Each source sequence is parsed independently so one invalid or generic row cannot contaminate another row's result. Accession reference matching is exact. External converter availability, conversion success, current-model normalization, and semantic agreement are separate fields. Accessions converted through an accession-matched WURCS fallback are labeled as fallback and are never used to attribute a source-format error to glyparse.",
+    "Each source sequence is parsed independently so one invalid or generic row cannot contaminate another row's result. Accession reference matching is exact. External converter availability, conversion success, current-model normalization, comparison contract, comparison key, and semantic agreement are separate fields. Direct cross-tool consensus uses reducing-end-neutral keys so missing root-anomer information cannot create a false outlier. Accessions converted through an accession-matched WURCS fallback are labeled as fallback and are never used to attribute a source-format error to glyparse.",
     "",
     "Performance uses deterministic, evenly spaced samples of 1,000 successfully parsed concrete glycans, three vectorized repeats per parser. This isolates steady-state vector throughput from the scalar row-level diagnostic run."
   ),
@@ -206,7 +219,9 @@ findings_body <- paste(
     paste0(
       "The normalized accession reference agrees with glyparse for **",
       sprintf("%.3f%%", 100 * reference_equivalent / reference_compared),
-      "** of comparable non-condensed rows. The five reference differences represent two accessions and concern anomeric-carbon specificity on mannose residues. Direct external conversion supports glyparse being the outlier for ",
+      "** of comparable non-condensed rows. The ",
+      reference_differences,
+      " reference differences represent two accessions and concern anomeric-carbon specificity on mannose residues. Direct external conversion supports glyparse being the outlier for ",
       outlier_rows,
       " format-row(s); the other reference differences remain unresolved or support the reference/source distinction described in the evidence table."
     ),
@@ -219,7 +234,7 @@ limitations_body <- paste(
   c(
     "## Limitations and robustness",
     "",
-    "Canonical comparison is intentionally limited to chemistry representable by the current glyrepr model. An external output that cannot be normalized is reported as unavailable rather than as a semantic disagreement. Agreement between two direct converters without an accession reference is retained as an unresolved external-consensus difference, not attributed to glyparse, because shared information loss cannot be excluded. The external libraries differ in supported residue vocabularies and reducing-end conventions, so raw string equality is never used.",
+    "Canonical comparison is intentionally limited to chemistry representable by the current glyrepr model. An external output that cannot be normalized is reported as unavailable rather than as a semantic disagreement. Agreement between two direct converters without an accession reference is retained as an unresolved external-consensus difference, not attributed to glyparse, because shared information loss cannot be excluded. The reducing-end-neutral contract for glycowork and glypy ignores only the terminal root token; it does not forgive internal anomer/linkage, alditol, topology, residue, substituent, or floating-component differences. Raw string equality is never used.",
     "",
     "Detailed failure classifications reuse exact-row diagnostics only when accession and full source sequence match the prior diagnostic corpus; otherwise the current internal parser stage is replayed. Every final failure row retains the diagnostic source."
   ),
@@ -257,13 +272,13 @@ writeLines(
 source_summary <- list(
   id = "format_summary",
   label = "glyparse format summary",
-  path = "data/benchmark/glyparse_validation/format_summary.csv",
+  path = "results/data/glyparse_validation/format_summary.csv",
   query = list(
     engine = "DuckDB",
     language = "SQL",
     sql = paste0(
       "SELECT * FROM read_csv_auto(",
-      "'data/benchmark/glyparse_validation/format_summary.csv')"
+      "'results/data/glyparse_validation/format_summary.csv')"
     ),
     description = "Read the generated format-level glyparse validation summary."
   )
@@ -271,7 +286,7 @@ source_summary <- list(
 source_tools <- list(
   id = "external_summary",
   label = "External converter summary",
-  path = "data/benchmark/glyparse_validation/external_tool_summary.csv",
+  path = "results/data/glyparse_validation/external_tool_summary.csv",
   query = list(
     engine = "DuckDB",
     language = "SQL",
@@ -279,7 +294,7 @@ source_tools <- list(
       "SELECT *, normalized::DOUBLE / rows AS normalized_rate, ",
       "comparable_with_glyparse::DOUBLE / rows AS comparable_rate ",
       "FROM read_csv_auto(",
-      "'data/benchmark/glyparse_validation/external_tool_summary.csv')"
+      "'results/data/glyparse_validation/external_tool_summary.csv')"
     ),
     description = "Read conversion, normalization, and comparison counts by tool and format."
   )
@@ -287,13 +302,13 @@ source_tools <- list(
 source_benchmark <- list(
   id = "parser_benchmark",
   label = "glyparse parser benchmark",
-  path = "data/benchmark/glyparse_validation/parser_benchmark.csv",
+  path = "results/data/glyparse_validation/parser_benchmark.csv",
   query = list(
     engine = "DuckDB",
     language = "SQL",
     sql = paste0(
       "SELECT * FROM read_csv_auto(",
-      "'data/benchmark/glyparse_validation/parser_benchmark.csv')"
+      "'results/data/glyparse_validation/parser_benchmark.csv')"
     ),
     description = "Read median and range statistics from the three parser benchmark repeats."
   )
@@ -301,13 +316,13 @@ source_benchmark <- list(
 source_failures <- list(
   id = "failure_summary",
   label = "glyparse failure reason summary",
-  path = "data/benchmark/glyparse_validation/failure_reason_summary.csv",
+  path = "results/data/glyparse_validation/failure_reason_summary.csv",
   query = list(
     engine = "DuckDB",
     language = "SQL",
     sql = paste0(
       "SELECT * FROM read_csv_auto(",
-      "'data/benchmark/glyparse_validation/failure_reason_summary.csv')"
+      "'results/data/glyparse_validation/failure_reason_summary.csv')"
     ),
     description = "Read grouped row-level parser failure classes and reasons."
   )
@@ -315,13 +330,13 @@ source_failures <- list(
 source_disagreements <- list(
   id = "disagreement_ledger",
   label = "Semantic disagreement ledger",
-  path = "data/benchmark/glyparse_validation/semantic_disagreements.csv.gz",
+  path = "results/data/glyparse_validation/semantic_disagreements.csv.gz",
   query = list(
     engine = "DuckDB",
     language = "SQL",
     sql = paste0(
       "SELECT * FROM read_csv_auto(",
-      "'data/benchmark/glyparse_validation/semantic_disagreements.csv.gz')"
+      "'results/data/glyparse_validation/semantic_disagreements.csv.gz')"
     ),
     description = "Read the complete normalized glyparse-versus-comparator disagreement ledger."
   )

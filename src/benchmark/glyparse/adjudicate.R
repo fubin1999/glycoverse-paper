@@ -65,17 +65,89 @@ canonical_features <- function(value) {
   )
 }
 
-canonical_difference_reason <- function(left, right) {
+strip_reducing_end_token <- function(value) {
+  sub("\\([ab?][0-9?/]+-$", "", value, perl = TRUE)
+}
+
+comparison_contract_for_tool <- function(tool) {
+  if (tool %in% c("glycowork", "glypy")) {
+    return("ignore_terminal_reducing_end_token")
+  }
+  "strict_canonical"
+}
+
+canonical_comparison_key <- function(value, comparison_contract) {
+  if (identical(
+    comparison_contract,
+    "ignore_terminal_reducing_end_token"
+  )) {
+    return(strip_reducing_end_token(value))
+  }
+  value
+}
+
+stopifnot(
+  identical(
+    strip_reducing_end_token("Gal(b1-3)GalNAc(a1-"),
+    "Gal(b1-3)GalNAc"
+  ),
+  identical(
+    strip_reducing_end_token("Gal(b1-3)GalNAc(?1-"),
+    "Gal(b1-3)GalNAc"
+  ),
+  identical(
+    strip_reducing_end_token("Gal(b1-3)GalNAc(?2-"),
+    "Gal(b1-3)GalNAc"
+  ),
+  identical(
+    strip_reducing_end_token("Gal(a1-3)GalNAc(?1-"),
+    "Gal(a1-3)GalNAc"
+  )
+)
+
+canonical_difference_reason <- function(
+  left,
+  right,
+  comparison_contract = "strict_canonical"
+) {
   if (!nzchar(left) || !nzchar(right)) {
     return(
       "One side has no normalized glycan, so no semantic comparison is possible."
     )
   }
-  if (identical(left, right)) {
-    return("The normalized canonical glycans are identical.")
+  left_key <- canonical_comparison_key(left, comparison_contract)
+  right_key <- canonical_comparison_key(right, comparison_contract)
+  if (identical(left_key, right_key)) {
+    if (identical(comparison_contract, "strict_canonical")) {
+      return("The normalized canonical glycans are identical.")
+    }
+    return(paste0(
+      "The normalized canonical glycans are identical after removing the ",
+      "terminal reducing-end token from both sides."
+    ))
   }
   a <- canonical_features(left)
   b <- canonical_features(right)
+  ignore_reducing_end <- identical(
+    comparison_contract,
+    "ignore_terminal_reducing_end_token"
+  )
+  if (ignore_reducing_end) {
+    if (
+      grepl("\\([ab?][0-9?/]+-$", left, perl = TRUE) &&
+        length(a$linkages) > 0L
+    ) {
+      a$linkages <- head(a$linkages, -1L)
+    }
+    if (
+      grepl("\\([ab?][0-9?/]+-$", right, perl = TRUE) &&
+        length(b$linkages) > 0L
+    ) {
+      b$linkages <- head(b$linkages, -1L)
+    }
+    a$reducing_linkage <- ""
+    b$reducing_linkage <- ""
+  }
   reasons <- character()
   if (!identical(sort(a$residues), sort(b$residues))) {
     reasons <- c(
@@ -104,7 +176,10 @@ canonical_difference_reason <- function(left, right) {
   if (!identical(a$alditol, b$alditol)) {
     reasons <- c(reasons, "Reducing-end alditol state differs.")
   }
-  if (!identical(a$reducing_linkage, b$reducing_linkage)) {
+  if (
+    !ignore_reducing_end &&
+      !identical(a$reducing_linkage, b$reducing_linkage)
+  ) {
     reasons <- c(
       reasons,
       paste0(
@@ -361,13 +436,20 @@ for (format in formats) {
       source_sequence = parser$source_sequence[reference_differs],
       comparator = "IUPAC-condensed accession reference",
       evidence_scope = "accession_matched_reference",
+      comparison_contract = "strict_canonical",
       glyparse_iupac_condensed = parser$parsed_iupac_condensed[
+        reference_differs
+      ],
+      glyparse_comparison_key = parser$parsed_iupac_condensed[
         reference_differs
       ],
       comparator_raw_iupac_condensed = parser$reference_iupac_condensed[
         reference_differs
       ],
       comparator_normalized_iupac_condensed = parser$reference_normalized_iupac_condensed[
+        reference_differs
+      ],
+      comparator_comparison_key = parser$reference_normalized_iupac_condensed[
         reference_differs
       ],
       difference_reason = vapply(
@@ -386,6 +468,9 @@ for (format in formats) {
   }
 
   external_canonical <- list()
+  external_comparison_key <- list()
+  parser_comparison_key <- list()
+  reference_comparison_key <- list()
   external_scope <- list()
   for (tool in names(external_tools)) {
     prefix <- external_tools[[tool]]
@@ -408,16 +493,35 @@ for (format in formats) {
     )
     external_canonical[[tool]] <- canonical
     external_scope[[tool]] <- external$evidence_scope
+    comparison_contract <- comparison_contract_for_tool(tool)
+    canonical_key <- canonical_comparison_key(
+      canonical,
+      comparison_contract
+    )
+    parser_key <- canonical_comparison_key(
+      parser$parsed_iupac_condensed,
+      comparison_contract
+    )
+    reference_key <- canonical_comparison_key(
+      parser$reference_normalized_iupac_condensed,
+      comparison_contract
+    )
+    external_comparison_key[[tool]] <- canonical_key
+    parser_comparison_key[[tool]] <- parser_key
+    reference_comparison_key[[tool]] <- reference_key
     key <- gsub("[^[:alnum:]]", "_", tolower(tool))
     row[[paste0(key, "_conversion_status")]] <- external$conversion_status
     row[[paste0(key, "_normalization_status")]] <-
       external$normalization_status
     row[[paste0(key, "_normalized_iupac_condensed")]] <- canonical
+    row[[paste0(key, "_comparison_contract")]] <- comparison_contract
+    row[[paste0(key, "_glyparse_comparison_key")]] <- parser_key
+    row[[paste0(key, "_comparison_key")]] <- canonical_key
     row[[paste0(key, "_evidence_scope")]] <- external$evidence_scope
     comparable <- parser$parse_status == "parsed" & nzchar(canonical)
     comparison <- rep("not_comparable", n)
     comparison[comparable] <- ifelse(
-      parser$parsed_iupac_condensed[comparable] == canonical[comparable],
+      parser_key[comparable] == canonical_key[comparable],
       "equivalent",
       "semantic_difference"
     )
@@ -433,15 +537,19 @@ for (format in formats) {
         source_sequence = parser$source_sequence[differs],
         comparator = tool,
         evidence_scope = external$evidence_scope[differs],
+        comparison_contract = comparison_contract,
         glyparse_iupac_condensed = parser$parsed_iupac_condensed[differs],
+        glyparse_comparison_key = parser_key[differs],
         comparator_raw_iupac_condensed = external$raw_iupac_condensed[differs],
         comparator_normalized_iupac_condensed = canonical[differs],
+        comparator_comparison_key = canonical_key[differs],
         difference_reason = vapply(
           differs,
           function(index) {
             canonical_difference_reason(
               parser$parsed_iupac_condensed[[index]],
-              canonical[[index]]
+              canonical[[index]],
+              comparison_contract
             )
           },
           character(1)
@@ -453,6 +561,8 @@ for (format in formats) {
     tool_summaries[[paste(format, tool)]] <- data.frame(
       format = format,
       tool = tool,
+      tool_version = unique(external$tool_version),
+      comparison_contract = comparison_contract,
       rows = n,
       converted = sum(external$conversion_status %in% c("converted")),
       conversion_failed = sum(!external$conversion_status %in% c("converted")),
@@ -490,6 +600,14 @@ for (format in formats) {
 
   if (!identical(format, "iupac_condensed")) {
     external_matrix <- do.call(cbind, external_canonical)
+    external_key_matrix <- do.call(cbind, external_comparison_key)
+    parser_key_matrix <- do.call(cbind, parser_comparison_key)
+    reference_key_matrix <- do.call(cbind, reference_comparison_key)
+    consensus_key_matrix <- apply(
+      external_matrix,
+      2L,
+      strip_reducing_end_token
+    )
     scope_matrix <- do.call(cbind, external_scope)
     parser_failed <- row$parse_status == "failed"
     row$adjudication_status[parser_failed] <- "parser_failed"
@@ -508,18 +626,22 @@ for (format in formats) {
     for (index in which(!parser_failed & !ref_match)) {
       available <- nzchar(external_matrix[index, ])
       values <- external_matrix[index, available]
+      comparison_values <- external_key_matrix[index, available]
+      parser_values <- parser_key_matrix[index, available]
+      reference_values <- reference_key_matrix[index, available]
+      consensus_values <- consensus_key_matrix[index, available]
       scopes <- scope_matrix[index, available]
       direct <- grepl("^direct", scopes)
       direct_parser_hits <- sum(
-        direct & values == row$parsed_iupac_condensed[[index]]
+        direct & comparison_values == parser_values
       )
       reference <- row$reference_normalized_iupac_condensed[[index]]
       direct_reference_hits <- if (nzchar(reference)) {
-        sum(direct & values == reference)
+        sum(direct & comparison_values == reference_values)
       } else {
         0L
       }
-      direct_values <- values[direct]
+      direct_values <- consensus_values[direct]
       direct_counts <- sort(table(direct_values), decreasing = TRUE)
       direct_consensus <- length(direct_counts) > 0L &&
         direct_counts[[1L]] >= 2L
@@ -559,7 +681,9 @@ for (format in formats) {
         direct_consensus &&
           !identical(
             direct_consensus_value,
-            row$parsed_iupac_condensed[[index]]
+            strip_reducing_end_token(
+              row$parsed_iupac_condensed[[index]]
+            )
           )
       ) {
         row$adjudication_status[[
@@ -743,6 +867,11 @@ stopifnot(
   all(
     !grepl("^glyparse_.*outlier$", row_results$adjudication_status) |
       row_results$parse_status == "parsed"
+  ),
+  all(
+    !difference_results$comparator %in% c("glycowork", "glypy") |
+      difference_results$glyparse_comparison_key !=
+        difference_results$comparator_comparison_key
   )
 )
 

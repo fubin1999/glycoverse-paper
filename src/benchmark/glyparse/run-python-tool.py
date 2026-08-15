@@ -213,6 +213,7 @@ def run_format(
     wurcs_by_accession,
     workers,
     timeout,
+    force,
 ):
     file_name, sequence_column = FORMATS[format_name]
     input_path = os.path.join(corpus_dir, file_name)
@@ -237,19 +238,21 @@ def run_format(
         (index, row["glytoucan_ac"], row[sequence_column])
         for index, row in enumerate(read_rows(input_path), start=1)
     ]
-    if os.path.exists(output_path):
+    if os.path.exists(output_path) and not force:
         try:
             cached_converted = 0
             cached_failed = 0
             cached_rows = 0
+            cached_versions = set()
             with gzip.open(output_path, "rt", encoding="utf-8", newline="") as stream:
                 for cached in csv.DictReader(stream):
                     cached_rows += 1
+                    cached_versions.add(cached.get("tool_version", ""))
                     if cached["conversion_status"] == "converted":
                         cached_converted += 1
                     else:
                         cached_failed += 1
-            if cached_rows == len(payloads):
+            if cached_rows == len(payloads) and cached_versions == {version}:
                 print(
                     f"Reusing complete {tool} {format_name} cache",
                     file=sys.stderr,
@@ -309,6 +312,7 @@ def main():
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--timeout", type=float, default=5.0)
+    parser.add_argument("--force", action="store_true")
     arguments = parser.parse_args()
     os.makedirs(arguments.output_dir, exist_ok=True)
     csv.field_size_limit(sys.maxsize)
@@ -324,6 +328,7 @@ def main():
                 wurcs_by_accession,
                 arguments.workers,
                 arguments.timeout,
+                arguments.force,
             )
         )
     summary_path = os.path.join(
