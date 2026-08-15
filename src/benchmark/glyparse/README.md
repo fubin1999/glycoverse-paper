@@ -72,9 +72,15 @@ Final artifacts include:
 - `sequence_coverage_summary.csv`, with format-by-tool coverage counts
 - `parse_failures.csv.gz`, with one detailed reason per failed source row
 - `semantic_disagreements.csv.gz`, with one component-level reason per
-  normalized glyparse/comparator pair
+  normalized glyparse/comparator pair, plus a mutually exclusive primary reason
+  and overlapping component flags
 - `validation_rows.csv.gz`, the complete joined evidence ledger
 - `report.md`, `artifact.json`, and the self-contained `report.html`
+- `semantic_disagreement_*_summary.csv`, with primary, overlapping component,
+  tool, and format classifications
+- `semantic_disagreements_report.md`,
+  `semantic_disagreements_artifact.json`, and the self-contained
+  `semantic_disagreements_report.html`
 
 Sequence coverage uses four statuses: `parsed` and `failed` are direct tests of
 the source sequence; `fallback_only` means the available result came from an

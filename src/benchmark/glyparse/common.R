@@ -729,6 +729,130 @@ benchmark_semantically_equal <- function(
   equivalent
 }
 
+benchmark_mismatch_class_definitions <- data.frame(
+  mismatch_class = c(
+    "reducing_end_alditol",
+    "floating_structure_or_domain",
+    "reducing_end_anomer",
+    "residue_composition",
+    "topology_or_attachment",
+    "linkage_or_anomer",
+    "label_assignment_on_same_shape"
+  ),
+  mismatch_reason = c(
+    "Reducing-end alditol state",
+    "Floating component or candidate-parent domain",
+    "Reducing-end anomer or linkage",
+    "Residue or substituent composition",
+    "Topology or residue attachment",
+    "Internal linkage or anomer inventory",
+    "Label assignment on the same branch shape"
+  ),
+  definition = c(
+    "The two glycans disagree on whether the reducing residue is an alditol.",
+    paste0(
+      "Floating components, floating substituents, or their candidate-parent ",
+      "domains differ."
+    ),
+    paste0(
+      "The strict comparison disagrees at the reducing-end anomer or linkage ",
+      "token."
+    ),
+    "Residue identities or residue-bound substituent composition differ.",
+    paste0(
+      "The canonical graph topology or residue-to-residue attachment pattern ",
+      "differs."
+    ),
+    "Internal linkage positions or anomer assignments differ as a multiset.",
+    paste0(
+      "Composition, linkage inventory, and branch shape match, but labels are ",
+      "assigned to non-isomorphic nodes or edges."
+    )
+  ),
+  priority = seq_len(7L),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+benchmark_mismatch_reason_patterns <- c(
+  residue_composition = "Residue or residue-substituent composition differs",
+  linkage_or_anomer = "Linkage or anomer multiset differs",
+  reducing_end_alditol = "Reducing-end alditol state differs",
+  reducing_end_anomer = "Reducing-end anomer/linkage differs",
+  floating_structure_or_domain = paste0(
+    "Floating component/substituent or candidate-parent domain differs"
+  ),
+  label_assignment_on_same_shape = paste0(
+    "labels are assigned to different nodes or edges"
+  ),
+  topology_or_attachment = paste0(
+    "Canonical topology or residue-to-residue attachment differs"
+  )
+)
+
+benchmark_classify_semantic_differences <- function(data) {
+  stopifnot(is.data.frame(data))
+  if (nrow(data) == 0L) {
+    if (!"difference_reason" %in% names(data)) {
+      data$difference_reason <- character()
+    }
+    data$primary_mismatch_class <- character()
+    data$primary_mismatch_reason <- character()
+    data$mismatch_classes <- character()
+    data$mismatch_class_count <- integer()
+    for (class in names(benchmark_mismatch_reason_patterns)) {
+      data[[paste0("mismatch_has_", class)]] <- logical()
+    }
+    return(data)
+  }
+  stopifnot(
+    "difference_reason" %in% names(data),
+    all(nzchar(data$difference_reason))
+  )
+
+  flags <- vapply(
+    benchmark_mismatch_reason_patterns,
+    function(pattern) grepl(pattern, data$difference_reason, fixed = TRUE),
+    logical(nrow(data))
+  )
+  if (is.null(dim(flags))) {
+    flags <- matrix(
+      flags,
+      nrow = nrow(data),
+      dimnames = list(NULL, names(benchmark_mismatch_reason_patterns))
+    )
+  }
+  stopifnot(all(rowSums(flags) > 0L))
+
+  priority <- benchmark_mismatch_class_definitions$mismatch_class
+  data$primary_mismatch_class <- vapply(
+    seq_len(nrow(data)),
+    function(index) {
+      priority[which(priority %in% colnames(flags)[flags[index, ]])[[1L]]]
+    },
+    character(1)
+  )
+  data$primary_mismatch_reason <-
+    benchmark_mismatch_class_definitions$mismatch_reason[
+      match(
+        data$primary_mismatch_class,
+        benchmark_mismatch_class_definitions$mismatch_class
+      )
+    ]
+  data$mismatch_classes <- vapply(
+    seq_len(nrow(data)),
+    function(index) {
+      paste(colnames(flags)[flags[index, ]], collapse = ";")
+    },
+    character(1)
+  )
+  data$mismatch_class_count <- as.integer(rowSums(flags))
+  for (class in colnames(flags)) {
+    data[[paste0("mismatch_has_", class)]] <- flags[, class]
+  }
+  data
+}
+
 benchmark_tool_version <- function(command, arguments = character()) {
   output <- tryCatch(
     system2(command, arguments, stdout = TRUE, stderr = TRUE),

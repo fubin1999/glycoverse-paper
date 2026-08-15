@@ -1,0 +1,8 @@
+"mismatch_class","mismatch_reason","definition","priority","rows","share"
+"residue_composition","Residue or substituent composition","Residue identities or residue-bound substituent composition differ.",4,76985,0.646791457328651
+"linkage_or_anomer","Internal linkage or anomer inventory","Internal linkage positions or anomer assignments differ as a multiset.",6,61769,0.51895384201771
+"reducing_end_alditol","Reducing-end alditol state","The two glycans disagree on whether the reducing residue is an alditol.",1,43912,0.368927797287988
+"floating_structure_or_domain","Floating component or candidate-parent domain","Floating components, floating substituents, or their candidate-parent domains differ.",2,21479,0.180456370876951
+"topology_or_attachment","Topology or residue attachment","The canonical graph topology or residue-to-residue attachment pattern differs.",5,10920,0.0917446608304068
+"reducing_end_anomer","Reducing-end anomer or linkage","The strict comparison disagrees at the reducing-end anomer or linkage token.",3,7848,0.0659351738275671
+"label_assignment_on_same_shape","Label assignment on the same branch shape","Composition, linkage inventory, and branch shape match, but labels are assigned to non-isomorphic nodes or edges.",7,182,0.00152907768050678

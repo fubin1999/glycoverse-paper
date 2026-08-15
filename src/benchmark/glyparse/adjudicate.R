@@ -806,6 +806,9 @@ difference_results <- if (length(difference_results) == 0L) {
 } else {
   do.call(rbind, difference_results)
 }
+difference_results <- benchmark_classify_semantic_differences(
+  difference_results
+)
 format_summaries <- do.call(rbind, format_summaries)
 tool_summaries <- do.call(rbind, tool_summaries)
 rownames(row_results) <- NULL
@@ -991,6 +994,8 @@ stopifnot(
   nrow(failure_results) == sum(format_summaries$failed),
   all(nzchar(failure_results$failure_reason)),
   all(nzchar(failure_results$failure_class)),
+  all(nzchar(difference_results$primary_mismatch_class)),
+  all(difference_results$mismatch_class_count >= 1L),
   all(
     !grepl("^glyparse_.*outlier$", row_results$adjudication_status) |
       row_results$parse_status == "parsed"

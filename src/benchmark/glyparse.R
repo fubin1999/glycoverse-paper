@@ -55,5 +55,7 @@ if (stage %in% c("all", "adjudicate")) {
   run_r("adjudicate.R")
 }
 if (stage %in% c("all", "report")) {
+  run_r("classify-disagreements.R")
   run_r("build-report.R")
+  run_r("build-disagreement-report.R")
 }

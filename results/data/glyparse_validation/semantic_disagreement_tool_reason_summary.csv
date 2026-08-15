@@ -1,0 +1,17 @@
+"comparator","primary_mismatch_class","primary_mismatch_reason","rows","tool_mismatches","share_within_tool","direct_rows","fallback_rows"
+"GlycanFormatConverter","reducing_end_anomer","Reducing-end anomer or linkage",7845,12332,0.636149854038274,7845,0
+"GlycanFormatConverter","residue_composition","Residue or substituent composition",4445,12332,0.36044437236458,2248,2197
+"GlycanFormatConverter","floating_structure_or_domain","Floating component or candidate-parent domain",30,12332,0.0024326954265326,16,14
+"GlycanFormatConverter","linkage_or_anomer","Internal linkage or anomer inventory",10,12332,0.000810898475510866,8,2
+"GlycanFormatConverter","reducing_end_alditol","Reducing-end alditol state",2,12332,0.000162179695102173,1,1
+"glycowork","reducing_end_alditol","Reducing-end alditol state",40308,73228,0.55044518490195,40308,0
+"glycowork","linkage_or_anomer","Internal linkage or anomer inventory",21524,73228,0.293931283115748,21524,0
+"glycowork","floating_structure_or_domain","Floating component or candidate-parent domain",9464,73228,0.129240181351396,9464,0
+"glycowork","residue_composition","Residue or substituent composition",1116,73228,0.0152400721035669,1116,0
+"glycowork","topology_or_attachment","Topology or residue attachment",634,73228,0.00865789042442781,634,0
+"glycowork","label_assignment_on_same_shape","Label assignment on the same branch shape",182,73228,0.00248538810291145,182,0
+"glypy","residue_composition","Residue or substituent composition",17636,33466,0.526982609215323,15275,2361
+"glypy","floating_structure_or_domain","Floating component or candidate-parent domain",7696,33466,0.229964740333473,7696,0
+"glypy","linkage_or_anomer","Internal linkage or anomer inventory",4136,33466,0.123588119285245,3474,662
+"glypy","reducing_end_alditol","Reducing-end alditol state",3602,33466,0.107631626128011,3602,0
+"glypy","topology_or_attachment","Topology or residue attachment",396,33466,0.011832905037949,301,95
