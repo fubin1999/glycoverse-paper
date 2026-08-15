@@ -1,12 +1,12 @@
 {
-  "report_generated_at": "2026-08-15T12:23:15+0800",
+  "report_generated_at": "2026-08-15T18:35:36+0800",
   "glyparse_run": {
-    "generated_at": "2026-08-14T23:33:24+0800",
+    "generated_at": "2026-08-15T18:08:19+0800",
     "r_version": "R version 4.6.1 (2026-06-24)",
     "glyparse_version": "0.7.1.9000",
-    "glyparse_revision": "8647bfaf6fd94867e557e09fd7de9fe82b2a1b47",
+    "glyparse_revision": "6b4448c6adbfb2d77bb5f0a3f354dc92120bd7d8",
     "glyrepr_version": "0.14.0.9000",
-    "glyrepr_revision": "0d02960039c85b022d2872e4a92902be7f67a606",
+    "glyrepr_revision": "2181073145eac1718c124cbec901dbf16526d2f1",
     "corpus": {
       "glycam_iupac": {
         "file": "glycan_sequences_glycam_iupac.csv",

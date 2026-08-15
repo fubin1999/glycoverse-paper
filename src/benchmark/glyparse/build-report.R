@@ -71,6 +71,17 @@ tool_versions <- vapply(
 total_rows <- sum(format_summary$rows)
 total_parsed <- sum(format_summary$parsed)
 total_failed <- sum(format_summary$failed)
+iupac_formats <- c("iupac_compact", "iupac_condensed", "iupac_extended")
+iupac_complete <- all(
+  format_summary$failed[format_summary$format %in% iupac_formats] == 0L
+)
+mixed_residue_failure_rows <- sum(failure_summary$rows[
+  grepl(
+    "mixes generic and concrete|all generic or all concrete",
+    failure_summary$failure_reason,
+    ignore.case = TRUE
+  )
+])
 reference_available <- sum(format_summary$reference_available)
 reference_equivalent <- sum(format_summary$reference_equivalent)
 reference_differences <- sum(format_summary$reference_semantic_difference)
@@ -200,6 +211,17 @@ technical_summary_body <- paste(
       "**). The remaining **",
       format(total_failed, big.mark = ",", scientific = FALSE),
       "** failures have row-level stage, class, and reason evidence."
+    ),
+    "",
+    paste0(
+      if (iupac_complete) {
+        "IUPAC-compact, IUPAC-condensed, and IUPAC-extended each achieved **100% glyparse parse coverage**."
+      } else {
+        "At least one IUPAC source format retains glyparse parse failures."
+      },
+      " The remaining failure ledger contains **",
+      format(mixed_residue_failure_rows, big.mark = ",", scientific = FALSE),
+      "** row(s) whose detailed reason cites the former mixed generic/concrete residue restriction."
     ),
     "",
     paste0(
@@ -833,7 +855,7 @@ chart_map <- c(
   paste0(
     "| Throughput | What is steady-state parser throughput? | ",
     "Ranking / bar | format_label, median_rows_per_second, sample_rows, repeats | ",
-    "GLYCAM normalization is slower than the other parsers | Single blue root; exact tooltips |"
+    "Throughput varies by parser; exact medians and repeat ranges are retained | Single blue root; exact tooltips |"
   ),
   "",
   "Sequence-level coverage is presented as a table because exact lookup across four mutually exclusive states is more important than visual shape."

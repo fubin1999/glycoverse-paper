@@ -2,9 +2,11 @@
 
 ## Technical summary
 
-The benchmark evaluated **240,267** source sequences across seven formats. glyparse returned canonical glycans for **214,887** rows (**89.44%**). The remaining **25,380** failures have row-level stage, class, and reason evidence.
+The benchmark evaluated **240,267** source sequences across seven formats. glyparse returned canonical glycans for **220,320** rows (**91.70%**). The remaining **19,947** failures have row-level stage, class, and reason evidence.
 
-Among **104,619** accession-matched non-condensed rows, **104,527** were semantically comparable: **104,522** matched the independently normalized IUPAC-condensed reference and **5** differed; **92** failed in glyparse before comparison. Direct external evidence supports **2** glyparse outlier format-row(s), covering accession(s): G12345BK.
+IUPAC-compact, IUPAC-condensed, and IUPAC-extended each achieved **100% glyparse parse coverage**. The remaining failure ledger contains **0** row(s) whose detailed reason cites the former mixed generic/concrete residue restriction.
+
+Among **104,619** accession-matched non-condensed rows, **104,617** were semantically comparable: **104,612** matched the independently normalized IUPAC-condensed reference and **5** differed; **2** failed in glyparse before comparison. Direct external evidence supports **2** glyparse outlier format-row(s), covering accession(s): G12345BK.
 
 A separate sequence-level coverage ledger records whether each of the four tested tools parsed each exact source sequence. Direct failures, accession-fallback-only results, and untested formats remain distinct.
 
@@ -24,7 +26,7 @@ Performance uses deterministic, evenly spaced samples of 1,000 successfully pars
 
 The row-level coverage report contains one record for every source sequence. `parsed` and `failed` are direct tests of that exact source string. `fallback_only` means the available conversion used an accession-matched WURCS sequence instead, and `not_tested` means the tool was not run for that source format. Boolean `can_parse` values are therefore populated only for direct tests. For glypy IUPAC-condensed input, the terminal open reducing-end token is removed before its simple-IUPAC parser is called, matching the agreed convention that glypy does not encode reducing-end anomers; the row retains this evidence scope.
 
-- **glyparse:** parsed 214,887 of 240,267 directly tested rows (89.44%); 0 fallback-only and 0 not tested.
+- **glyparse:** parsed 220,320 of 240,267 directly tested rows (91.70%); 0 fallback-only and 0 not tested.
 - **GlycanFormatConverter:** parsed 101,938 of 158,068 directly tested rows (64.49%); 82,199 fallback-only and 0 not tested.
 - **glypy:** parsed 165,658 of 208,848 directly tested rows (79.32%); 31,419 fallback-only and 0 not tested.
 - **glycowork:** parsed 222,440 of 240,267 directly tested rows (92.58%); 0 fallback-only and 0 not tested.

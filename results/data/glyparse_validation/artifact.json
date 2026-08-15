@@ -5,7 +5,7 @@
     "surface": "report",
     "title": "glyparse corpus validation and benchmark",
     "description": "Row-level validation of glyparse against accession references and three external glycan converters.",
-    "generatedAt": "2026-08-15T12:23:15+0800",
+    "generatedAt": "2026-08-15T18:35:36+0800",
     "cards": [
       {
         "id": "rows",
@@ -387,7 +387,7 @@
       {
         "id": "summary",
         "type": "markdown",
-        "body": "## Technical summary\n\nThe benchmark evaluated **240,267** source sequences across seven formats. glyparse returned canonical glycans for **214,887** rows (**89.44%**). The remaining **25,380** failures have row-level stage, class, and reason evidence.\n\nAmong **104,619** accession-matched non-condensed rows, **104,527** were semantically comparable: **104,522** matched the independently normalized IUPAC-condensed reference and **5** differed; **92** failed in glyparse before comparison. Direct external evidence supports **2** glyparse outlier format-row(s), covering accession(s): G12345BK.\n\nA separate sequence-level coverage ledger records whether each of the four tested tools parsed each exact source sequence. Direct failures, accession-fallback-only results, and untested formats remain distinct."
+        "body": "## Technical summary\n\nThe benchmark evaluated **240,267** source sequences across seven formats. glyparse returned canonical glycans for **220,320** rows (**91.70%**). The remaining **19,947** failures have row-level stage, class, and reason evidence.\n\nIUPAC-compact, IUPAC-condensed, and IUPAC-extended each achieved **100% glyparse parse coverage**. The remaining failure ledger contains **0** row(s) whose detailed reason cites the former mixed generic/concrete residue restriction.\n\nAmong **104,619** accession-matched non-condensed rows, **104,617** were semantically comparable: **104,612** matched the independently normalized IUPAC-condensed reference and **5** differed; **2** failed in glyparse before comparison. Direct external evidence supports **2** glyparse outlier format-row(s), covering accession(s): G12345BK.\n\nA separate sequence-level coverage ledger records whether each of the four tested tools parsed each exact source sequence. Direct failures, accession-fallback-only results, and untested formats remain distinct."
       },
       {
         "id": "headline_metrics",
@@ -418,7 +418,7 @@
       {
         "id": "sequence_coverage_findings",
         "type": "markdown",
-        "body": "## Direct sequence coverage keeps fallback evidence separate\n\nThe row-level coverage report contains one record for every source sequence. `parsed` and `failed` are direct tests of that exact source string. `fallback_only` means the available conversion used an accession-matched WURCS sequence instead, and `not_tested` means the tool was not run for that source format. Boolean `can_parse` values are therefore populated only for direct tests. For glypy IUPAC-condensed input, the terminal open reducing-end token is removed before its simple-IUPAC parser is called, matching the agreed convention that glypy does not encode reducing-end anomers; the row retains this evidence scope.\n\n- **glyparse:** parsed 214,887 of 240,267 directly tested rows (89.44%); 0 fallback-only and 0 not tested.\n- **GlycanFormatConverter:** parsed 101,938 of 158,068 directly tested rows (64.49%); 82,199 fallback-only and 0 not tested.\n- **glypy:** parsed 165,658 of 208,848 directly tested rows (79.32%); 31,419 fallback-only and 0 not tested.\n- **glycowork:** parsed 222,440 of 240,267 directly tested rows (92.58%); 0 fallback-only and 0 not tested.",
+        "body": "## Direct sequence coverage keeps fallback evidence separate\n\nThe row-level coverage report contains one record for every source sequence. `parsed` and `failed` are direct tests of that exact source string. `fallback_only` means the available conversion used an accession-matched WURCS sequence instead, and `not_tested` means the tool was not run for that source format. Boolean `can_parse` values are therefore populated only for direct tests. For glypy IUPAC-condensed input, the terminal open reducing-end token is removed before its simple-IUPAC parser is called, matching the agreed convention that glypy does not encode reducing-end anomers; the row retains this evidence scope.\n\n- **glyparse:** parsed 220,320 of 240,267 directly tested rows (91.70%); 0 fallback-only and 0 not tested.\n- **GlycanFormatConverter:** parsed 101,938 of 158,068 directly tested rows (64.49%); 82,199 fallback-only and 0 not tested.\n- **glypy:** parsed 165,658 of 208,848 directly tested rows (79.32%); 31,419 fallback-only and 0 not tested.\n- **glycowork:** parsed 222,440 of 240,267 directly tested rows (92.58%); 0 fallback-only and 0 not tested.",
         "sourceId": "sequence_coverage_summary"
       },
       {
@@ -467,19 +467,19 @@
   },
   "snapshot": {
     "version": 1,
-    "generatedAt": "2026-08-15T12:23:15+0800",
+    "generatedAt": "2026-08-15T18:35:36+0800",
     "status": "ready",
     "datasets": {
       "headline": [
         {
           "total_rows": 240267,
-          "total_parsed": 214887,
-          "parse_success_rate": 0.8943675161383,
-          "reference_equivalent": 104522,
+          "total_parsed": 220320,
+          "parse_success_rate": 0.9169798599059,
+          "reference_equivalent": 104612,
           "reference_available": 104619,
-          "reference_agreement_rate": 0.9999521654692,
+          "reference_agreement_rate": 0.9999522066203,
           "supported_glyparse_outlier_rows": 2,
-          "unresolved_rows": 45865
+          "unresolved_rows": 48630
         }
       ],
       "format_summary": [
@@ -503,97 +503,97 @@
           "format": "glycoct",
           "format_label": "GlycoCT",
           "rows": 59181,
-          "parsed": 48172,
-          "failed": 11009,
-          "parse_success_rate": 0.8139774589818,
+          "parsed": 50696,
+          "failed": 8485,
+          "parse_success_rate": 0.8566262820838,
           "reference_available": 19621,
-          "reference_equivalent": 19600,
+          "reference_equivalent": 19618,
           "reference_semantic_difference": 1,
-          "validated_or_supported": 39442,
+          "validated_or_supported": 39932,
           "glyparse_outlier": 1,
-          "unresolved": 8087,
-          "parse_failure_rate": 0.1860225410182,
-          "reference_agreement_rate": 0.9989297181591
+          "unresolved": 8974,
+          "parse_failure_rate": 0.1433737179162,
+          "reference_agreement_rate": 0.9998471025942
         },
         {
           "format": "gwb",
           "format_label": "GlycoWorkbench",
           "rows": 50780,
-          "parsed": 48088,
-          "failed": 2692,
-          "parse_success_rate": 0.946987002757,
+          "parsed": 49493,
+          "failed": 1287,
+          "parse_success_rate": 0.9746553761323,
           "reference_available": 19621,
-          "reference_equivalent": 19601,
+          "reference_equivalent": 19619,
           "reference_semantic_difference": 2,
-          "validated_or_supported": 19630,
+          "validated_or_supported": 19648,
           "glyparse_outlier": 0,
-          "unresolved": 27023,
-          "parse_failure_rate": 0.05301299724301,
-          "reference_agreement_rate": 0.9989806839611
+          "unresolved": 28227,
+          "parse_failure_rate": 0.02534462386766,
+          "reference_agreement_rate": 0.9998980683961
         },
         {
           "format": "iupac_compact",
           "format_label": "IUPAC-compact",
           "rows": 24193,
-          "parsed": 24175,
-          "failed": 18,
-          "parse_success_rate": 0.9992559831356,
+          "parsed": 24193,
+          "failed": 0,
+          "parse_success_rate": 1,
           "reference_available": 19457,
-          "reference_equivalent": 19438,
+          "reference_equivalent": 19456,
           "reference_semantic_difference": 1,
-          "validated_or_supported": 19861,
+          "validated_or_supported": 19879,
           "glyparse_outlier": 0,
           "unresolved": 4314,
-          "parse_failure_rate": 0.000744016864382,
-          "reference_agreement_rate": 0.9990234876908
+          "parse_failure_rate": 0,
+          "reference_agreement_rate": 0.9999486046153
         },
         {
           "format": "iupac_condensed",
           "format_label": "IUPAC-condensed",
           "rows": 19621,
-          "parsed": 19603,
-          "failed": 18,
-          "parse_success_rate": 0.999082615565,
+          "parsed": 19621,
+          "failed": 0,
+          "parse_success_rate": 1,
           "reference_available": 0,
           "reference_equivalent": 0,
           "reference_semantic_difference": 0,
           "validated_or_supported": 0,
           "glyparse_outlier": 0,
           "unresolved": 0,
-          "parse_failure_rate": 0.000917384435044,
+          "parse_failure_rate": 0,
           "reference_agreement_rate": null
         },
         {
           "format": "iupac_extended",
           "format_label": "IUPAC-extended",
           "rows": 20082,
-          "parsed": 20064,
-          "failed": 18,
-          "parse_success_rate": 0.9991036749328,
+          "parsed": 20082,
+          "failed": 0,
+          "parse_success_rate": 1,
           "reference_available": 19483,
-          "reference_equivalent": 19465,
+          "reference_equivalent": 19483,
           "reference_semantic_difference": 0,
-          "validated_or_supported": 19660,
+          "validated_or_supported": 19678,
           "glyparse_outlier": 0,
           "unresolved": 359,
-          "parse_failure_rate": 0.000896325067224,
-          "reference_agreement_rate": 0.999076117641
+          "parse_failure_rate": 0,
+          "reference_agreement_rate": 1
         },
         {
           "format": "wurcs",
           "format_label": "WURCS",
           "rows": 59184,
-          "parsed": 47559,
-          "failed": 11625,
-          "parse_success_rate": 0.8035786699108,
+          "parsed": 49009,
+          "failed": 10175,
+          "parse_success_rate": 0.8280785347391,
           "reference_available": 19621,
-          "reference_equivalent": 19602,
+          "reference_equivalent": 19620,
           "reference_semantic_difference": 1,
-          "validated_or_supported": 40257,
+          "validated_or_supported": 40775,
           "glyparse_outlier": 1,
-          "unresolved": 6080,
-          "parse_failure_rate": 0.1964213300892,
-          "reference_agreement_rate": 0.999031649763
+          "unresolved": 6754,
+          "parse_failure_rate": 0.1719214652609,
+          "reference_agreement_rate": 0.9999490341981
         }
       ],
       "tool_summary": [
@@ -662,15 +662,15 @@
           "rows": 59181,
           "converted": 38806,
           "conversion_failed": 20375,
-          "normalized": 33346,
-          "normalization_failed": 5460,
-          "comparable_with_glyparse": 33333,
-          "equivalent_to_glyparse": 25528,
-          "different_from_glyparse": 7805,
+          "normalized": 33738,
+          "normalization_failed": 5068,
+          "comparable_with_glyparse": 33716,
+          "equivalent_to_glyparse": 25804,
+          "different_from_glyparse": 7912,
           "direct_rows": 59181,
           "fallback_rows": 0,
-          "normalized_rate": 0.563457866545,
-          "comparable_rate": 0.5632382014498,
+          "normalized_rate": 0.5700816140315,
+          "comparable_rate": 0.5697098731012,
           "format_label": "GlycoCT"
         },
         {
@@ -681,15 +681,15 @@
           "rows": 59181,
           "converted": 58965,
           "conversion_failed": 216,
-          "normalized": 50131,
-          "normalization_failed": 8834,
-          "comparable_with_glyparse": 42562,
-          "equivalent_to_glyparse": 27812,
-          "different_from_glyparse": 14750,
+          "normalized": 51386,
+          "normalization_failed": 7579,
+          "comparable_with_glyparse": 43802,
+          "equivalent_to_glyparse": 28063,
+          "different_from_glyparse": 15739,
           "direct_rows": 59181,
           "fallback_rows": 0,
-          "normalized_rate": 0.8470792990994,
-          "comparable_rate": 0.7191835217384,
+          "normalized_rate": 0.8682854294453,
+          "comparable_rate": 0.740136192359,
           "format_label": "GlycoCT"
         },
         {
@@ -700,15 +700,15 @@
           "rows": 59181,
           "converted": 50106,
           "conversion_failed": 9075,
-          "normalized": 40622,
-          "normalization_failed": 9484,
-          "comparable_with_glyparse": 40507,
-          "equivalent_to_glyparse": 28897,
-          "different_from_glyparse": 11610,
+          "normalized": 41604,
+          "normalization_failed": 8502,
+          "comparable_with_glyparse": 41489,
+          "equivalent_to_glyparse": 29166,
+          "different_from_glyparse": 12323,
           "direct_rows": 59181,
           "fallback_rows": 0,
-          "normalized_rate": 0.6864027306061,
-          "comparable_rate": 0.6844595393792,
+          "normalized_rate": 0.7029958939525,
+          "comparable_rate": 0.7010527027255,
           "format_label": "GlycoCT"
         },
         {
@@ -719,15 +719,15 @@
           "rows": 50780,
           "converted": 43548,
           "conversion_failed": 7232,
-          "normalized": 39179,
-          "normalization_failed": 4369,
-          "comparable_with_glyparse": 39167,
-          "equivalent_to_glyparse": 37013,
-          "different_from_glyparse": 2154,
+          "normalized": 39650,
+          "normalization_failed": 3898,
+          "comparable_with_glyparse": 39638,
+          "equivalent_to_glyparse": 37423,
+          "different_from_glyparse": 2215,
           "direct_rows": 0,
           "fallback_rows": 50780,
-          "normalized_rate": 0.7715439149271,
-          "comparable_rate": 0.7713076014179,
+          "normalized_rate": 0.7808192201654,
+          "comparable_rate": 0.7805829066562,
           "format_label": "GlycoWorkbench"
         },
         {
@@ -738,15 +738,15 @@
           "rows": 50780,
           "converted": 43570,
           "conversion_failed": 7210,
-          "normalized": 38858,
-          "normalization_failed": 4712,
-          "comparable_with_glyparse": 38856,
+          "normalized": 39914,
+          "normalization_failed": 3656,
+          "comparable_with_glyparse": 39912,
           "equivalent_to_glyparse": 0,
-          "different_from_glyparse": 38856,
+          "different_from_glyparse": 39912,
           "direct_rows": 50780,
           "fallback_rows": 0,
-          "normalized_rate": 0.7652225285545,
-          "comparable_rate": 0.7651831429697,
+          "normalized_rate": 0.786018117369,
+          "comparable_rate": 0.7859787317842,
           "format_label": "GlycoWorkbench"
         },
         {
@@ -757,15 +757,15 @@
           "rows": 50780,
           "converted": 24345,
           "conversion_failed": 26435,
-          "normalized": 23774,
-          "normalization_failed": 571,
-          "comparable_with_glyparse": 23774,
+          "normalized": 24143,
+          "normalization_failed": 202,
+          "comparable_with_glyparse": 24143,
           "equivalent_to_glyparse": 54,
-          "different_from_glyparse": 23720,
+          "different_from_glyparse": 24089,
           "direct_rows": 50780,
           "fallback_rows": 0,
-          "normalized_rate": 0.4681764474202,
-          "comparable_rate": 0.4681764474202,
+          "normalized_rate": 0.4754430878299,
+          "comparable_rate": 0.4754430878299,
           "format_label": "GlycoWorkbench"
         },
         {
@@ -776,15 +776,15 @@
           "rows": 24193,
           "converted": 24187,
           "conversion_failed": 6,
-          "normalized": 24038,
-          "normalization_failed": 149,
-          "comparable_with_glyparse": 24038,
-          "equivalent_to_glyparse": 24035,
+          "normalized": 24056,
+          "normalization_failed": 131,
+          "comparable_with_glyparse": 24056,
+          "equivalent_to_glyparse": 24053,
           "different_from_glyparse": 3,
           "direct_rows": 0,
           "fallback_rows": 24193,
-          "normalized_rate": 0.9935931881123,
-          "comparable_rate": 0.9935931881123,
+          "normalized_rate": 0.9943372049766,
+          "comparable_rate": 0.9943372049766,
           "format_label": "IUPAC-compact"
         },
         {
@@ -795,15 +795,15 @@
           "rows": 24193,
           "converted": 23934,
           "conversion_failed": 259,
-          "normalized": 19184,
-          "normalization_failed": 4750,
-          "comparable_with_glyparse": 19184,
-          "equivalent_to_glyparse": 15142,
-          "different_from_glyparse": 4042,
+          "normalized": 19202,
+          "normalization_failed": 4732,
+          "comparable_with_glyparse": 19202,
+          "equivalent_to_glyparse": 15157,
+          "different_from_glyparse": 4045,
           "direct_rows": 24193,
           "fallback_rows": 0,
-          "normalized_rate": 0.7929566403505,
-          "comparable_rate": 0.7929566403505,
+          "normalized_rate": 0.7937006572149,
+          "comparable_rate": 0.7937006572149,
           "format_label": "IUPAC-compact"
         },
         {
@@ -814,15 +814,15 @@
           "rows": 24193,
           "converted": 24193,
           "conversion_failed": 0,
-          "normalized": 19229,
-          "normalization_failed": 4964,
-          "comparable_with_glyparse": 19229,
-          "equivalent_to_glyparse": 16328,
-          "different_from_glyparse": 2901,
+          "normalized": 19247,
+          "normalization_failed": 4946,
+          "comparable_with_glyparse": 19247,
+          "equivalent_to_glyparse": 16344,
+          "different_from_glyparse": 2903,
           "direct_rows": 0,
           "fallback_rows": 24193,
-          "normalized_rate": 0.7948166825115,
-          "comparable_rate": 0.7948166825115,
+          "normalized_rate": 0.7955606993759,
+          "comparable_rate": 0.7955606993759,
           "format_label": "IUPAC-compact"
         },
         {
@@ -833,14 +833,14 @@
           "rows": 19621,
           "converted": 19483,
           "conversion_failed": 138,
-          "normalized": 19465,
-          "normalization_failed": 18,
+          "normalized": 19483,
+          "normalization_failed": 0,
           "comparable_with_glyparse": 0,
           "equivalent_to_glyparse": 0,
           "different_from_glyparse": 0,
           "direct_rows": 19621,
           "fallback_rows": 0,
-          "normalized_rate": 0.9920493348963,
+          "normalized_rate": 0.9929667193313,
           "comparable_rate": 0,
           "format_label": "IUPAC-condensed"
         },
@@ -852,14 +852,14 @@
           "rows": 19621,
           "converted": 19621,
           "conversion_failed": 0,
-          "normalized": 3,
-          "normalization_failed": 19618,
+          "normalized": 21,
+          "normalization_failed": 19600,
           "comparable_with_glyparse": 0,
           "equivalent_to_glyparse": 0,
           "different_from_glyparse": 0,
           "direct_rows": 19621,
           "fallback_rows": 0,
-          "normalized_rate": 0.0001528974058407,
+          "normalized_rate": 0.001070281840885,
           "comparable_rate": 0,
           "format_label": "IUPAC-condensed"
         },
@@ -871,14 +871,14 @@
           "rows": 19621,
           "converted": 19557,
           "conversion_failed": 64,
-          "normalized": 19365,
-          "normalization_failed": 192,
+          "normalized": 19383,
+          "normalization_failed": 174,
           "comparable_with_glyparse": 0,
           "equivalent_to_glyparse": 0,
           "different_from_glyparse": 0,
           "direct_rows": 19621,
           "fallback_rows": 0,
-          "normalized_rate": 0.9869527547016,
+          "normalized_rate": 0.9878701391366,
           "comparable_rate": 0,
           "format_label": "IUPAC-condensed"
         },
@@ -928,15 +928,15 @@
           "rows": 20082,
           "converted": 20081,
           "conversion_failed": 1,
-          "normalized": 19843,
-          "normalization_failed": 238,
-          "comparable_with_glyparse": 19843,
-          "equivalent_to_glyparse": 16104,
-          "different_from_glyparse": 3739,
+          "normalized": 19861,
+          "normalization_failed": 220,
+          "comparable_with_glyparse": 19861,
+          "equivalent_to_glyparse": 16120,
+          "different_from_glyparse": 3741,
           "direct_rows": 20082,
           "fallback_rows": 0,
-          "normalized_rate": 0.9880987949407,
-          "comparable_rate": 0.9880987949407,
+          "normalized_rate": 0.988995120008,
+          "comparable_rate": 0.988995120008,
           "format_label": "IUPAC-extended"
         },
         {
@@ -947,15 +947,15 @@
           "rows": 59184,
           "converted": 43622,
           "conversion_failed": 15562,
-          "normalized": 39179,
-          "normalization_failed": 4443,
-          "comparable_with_glyparse": 39167,
-          "equivalent_to_glyparse": 25607,
-          "different_from_glyparse": 13560,
+          "normalized": 39650,
+          "normalization_failed": 3972,
+          "comparable_with_glyparse": 39638,
+          "equivalent_to_glyparse": 25923,
+          "different_from_glyparse": 13715,
           "direct_rows": 59184,
           "fallback_rows": 0,
-          "normalized_rate": 0.6619863476615,
-          "comparable_rate": 0.6617835901595,
+          "normalized_rate": 0.6699445796161,
+          "comparable_rate": 0.6697418221141,
           "format_label": "WURCS"
         },
         {
@@ -966,15 +966,15 @@
           "rows": 59184,
           "converted": 49042,
           "conversion_failed": 10142,
-          "normalized": 46213,
-          "normalization_failed": 2829,
-          "comparable_with_glyparse": 45503,
-          "equivalent_to_glyparse": 32730,
-          "different_from_glyparse": 12773,
+          "normalized": 47357,
+          "normalization_failed": 1685,
+          "comparable_with_glyparse": 46662,
+          "equivalent_to_glyparse": 33064,
+          "different_from_glyparse": 13598,
           "direct_rows": 59184,
           "fallback_rows": 0,
-          "normalized_rate": 0.7808360367667,
-          "comparable_rate": 0.7688395512301,
+          "normalized_rate": 0.8001655852933,
+          "comparable_rate": 0.7884225466342,
           "format_label": "WURCS"
         },
         {
@@ -985,15 +985,15 @@
           "rows": 59184,
           "converted": 51569,
           "conversion_failed": 7615,
-          "normalized": 39856,
-          "normalization_failed": 11713,
-          "comparable_with_glyparse": 34680,
-          "equivalent_to_glyparse": 28565,
-          "different_from_glyparse": 6115,
+          "normalized": 40413,
+          "normalization_failed": 11156,
+          "comparable_with_glyparse": 35254,
+          "equivalent_to_glyparse": 28830,
+          "different_from_glyparse": 6424,
           "direct_rows": 59184,
           "fallback_rows": 0,
-          "normalized_rate": 0.6734252500676,
-          "comparable_rate": 0.5859691808597,
+          "normalized_rate": 0.6828365774534,
+          "comparable_rate": 0.59566774804,
           "format_label": "WURCS"
         }
       ],
@@ -1004,10 +1004,10 @@
           "mono_type": "concrete",
           "sample_rows": 1000,
           "repeats": 3,
-          "median_elapsed_seconds": 49.653,
-          "median_rows_per_second": 20.139770003826,
-          "min_rows_per_second": 19.579817124508,
-          "max_rows_per_second": 22.11068609459,
+          "median_elapsed_seconds": 8.101,
+          "median_rows_per_second": 123.441550425873,
+          "min_rows_per_second": 117.716303708064,
+          "max_rows_per_second": 127.064803049555,
           "format_label": "GLYCAM-IUPAC"
         },
         {
@@ -1016,10 +1016,10 @@
           "mono_type": "concrete",
           "sample_rows": 1000,
           "repeats": 3,
-          "median_elapsed_seconds": 9.889,
-          "median_rows_per_second": 101.12245929821,
-          "min_rows_per_second": 97.143967359627,
-          "max_rows_per_second": 101.698362656362,
+          "median_elapsed_seconds": 10.812,
+          "median_rows_per_second": 92.489826119127,
+          "min_rows_per_second": 84.552295594825,
+          "max_rows_per_second": 93.861460484325,
           "format_label": "GlycoCT"
         },
         {
@@ -1028,10 +1028,10 @@
           "mono_type": "concrete",
           "sample_rows": 1000,
           "repeats": 3,
-          "median_elapsed_seconds": 13.54,
-          "median_rows_per_second": 73.855243722304,
-          "min_rows_per_second": 73.110103816347,
-          "max_rows_per_second": 74.310767630229,
+          "median_elapsed_seconds": 14.564,
+          "median_rows_per_second": 68.662455369404,
+          "min_rows_per_second": 67.879446103719,
+          "max_rows_per_second": 68.898994074686,
           "format_label": "GlycoWorkbench"
         },
         {
@@ -1040,10 +1040,10 @@
           "mono_type": "concrete",
           "sample_rows": 1000,
           "repeats": 3,
-          "median_elapsed_seconds": 8.104,
-          "median_rows_per_second": 123.395853899312,
-          "min_rows_per_second": 118.835412953061,
-          "max_rows_per_second": 130.992926381975,
+          "median_elapsed_seconds": 8.929,
+          "median_rows_per_second": 111.994624258037,
+          "min_rows_per_second": 110.82788429569,
+          "max_rows_per_second": 125.156445556946,
           "format_label": "IUPAC-compact"
         },
         {
@@ -1052,10 +1052,10 @@
           "mono_type": "concrete",
           "sample_rows": 1000,
           "repeats": 3,
-          "median_elapsed_seconds": 7.72,
-          "median_rows_per_second": 129.533678756476,
-          "min_rows_per_second": 109.229929000546,
-          "max_rows_per_second": 139.082058414463,
+          "median_elapsed_seconds": 8.17,
+          "median_rows_per_second": 122.399020807832,
+          "min_rows_per_second": 107.492206815005,
+          "max_rows_per_second": 123.001230012298,
           "format_label": "IUPAC-condensed"
         },
         {
@@ -1064,10 +1064,10 @@
           "mono_type": "concrete",
           "sample_rows": 1000,
           "repeats": 3,
-          "median_elapsed_seconds": 11.075,
-          "median_rows_per_second": 90.293453724606,
-          "min_rows_per_second": 90.228277542181,
-          "max_rows_per_second": 90.407738902451,
+          "median_elapsed_seconds": 12.284,
+          "median_rows_per_second": 81.406707912733,
+          "min_rows_per_second": 73.459193418056,
+          "max_rows_per_second": 86.184607429113,
           "format_label": "IUPAC-extended"
         },
         {
@@ -1076,10 +1076,10 @@
           "mono_type": "concrete",
           "sample_rows": 1000,
           "repeats": 3,
-          "median_elapsed_seconds": 10.765,
-          "median_rows_per_second": 92.893636785879,
-          "min_rows_per_second": 90.909090909091,
-          "max_rows_per_second": 95.812973076555,
+          "median_elapsed_seconds": 11.318,
+          "median_rows_per_second": 88.354833009366,
+          "min_rows_per_second": 87.070091423597,
+          "max_rows_per_second": 99.108027750249,
           "format_label": "WURCS"
         }
       ],
@@ -1138,11 +1138,11 @@
           "tool": "glyparse",
           "rows": 59181,
           "directly_tested": 59181,
-          "parsed": 48172,
-          "failed": 11009,
+          "parsed": 50696,
+          "failed": 8485,
           "fallback_only": 0,
           "not_tested": 0,
-          "direct_parse_rate": 0.8139774589818
+          "direct_parse_rate": 0.8566262820838
         },
         {
           "format": "glycoct",
@@ -1186,11 +1186,11 @@
           "tool": "glyparse",
           "rows": 50780,
           "directly_tested": 50780,
-          "parsed": 48088,
-          "failed": 2692,
+          "parsed": 49493,
+          "failed": 1287,
           "fallback_only": 0,
           "not_tested": 0,
-          "direct_parse_rate": 0.946987002757
+          "direct_parse_rate": 0.9746553761323
         },
         {
           "format": "gwb",
@@ -1234,11 +1234,11 @@
           "tool": "glyparse",
           "rows": 24193,
           "directly_tested": 24193,
-          "parsed": 24175,
-          "failed": 18,
+          "parsed": 24193,
+          "failed": 0,
           "fallback_only": 0,
           "not_tested": 0,
-          "direct_parse_rate": 0.9992559831356
+          "direct_parse_rate": 1
         },
         {
           "format": "iupac_compact",
@@ -1282,11 +1282,11 @@
           "tool": "glyparse",
           "rows": 19621,
           "directly_tested": 19621,
-          "parsed": 19603,
-          "failed": 18,
+          "parsed": 19621,
+          "failed": 0,
           "fallback_only": 0,
           "not_tested": 0,
-          "direct_parse_rate": 0.999082615565
+          "direct_parse_rate": 1
         },
         {
           "format": "iupac_condensed",
@@ -1330,11 +1330,11 @@
           "tool": "glyparse",
           "rows": 20082,
           "directly_tested": 20082,
-          "parsed": 20064,
-          "failed": 18,
+          "parsed": 20082,
+          "failed": 0,
           "fallback_only": 0,
           "not_tested": 0,
-          "direct_parse_rate": 0.9991036749328
+          "direct_parse_rate": 1
         },
         {
           "format": "iupac_extended",
@@ -1378,11 +1378,11 @@
           "tool": "glyparse",
           "rows": 59184,
           "directly_tested": 59184,
-          "parsed": 47559,
-          "failed": 11625,
+          "parsed": 49009,
+          "failed": 10175,
           "fallback_only": 0,
           "not_tested": 0,
-          "direct_parse_rate": 0.8035786699108
+          "direct_parse_rate": 0.8280785347391
         },
         {
           "format": "wurcs",
@@ -1467,7 +1467,7 @@
         {
           "format": "glycoct",
           "failure_class": "glyrepr_restriction",
-          "rows": 10999,
+          "rows": 8475,
           "format_label": "GlycoCT"
         },
         {
@@ -1478,38 +1478,20 @@
         },
         {
           "format": "gwb",
-          "failure_class": "glyrepr_restriction",
-          "rows": 1407,
-          "format_label": "GlycoWorkbench"
-        },
-        {
-          "format": "gwb",
           "failure_class": "glyparse_limitation",
           "rows": 1285,
           "format_label": "GlycoWorkbench"
         },
         {
-          "format": "iupac_compact",
+          "format": "gwb",
           "failure_class": "glyrepr_restriction",
-          "rows": 18,
-          "format_label": "IUPAC-compact"
-        },
-        {
-          "format": "iupac_condensed",
-          "failure_class": "glyrepr_restriction",
-          "rows": 18,
-          "format_label": "IUPAC-condensed"
-        },
-        {
-          "format": "iupac_extended",
-          "failure_class": "glyrepr_restriction",
-          "rows": 18,
-          "format_label": "IUPAC-extended"
+          "rows": 2,
+          "format_label": "GlycoWorkbench"
         },
         {
           "format": "wurcs",
           "failure_class": "glyrepr_restriction",
-          "rows": 11546,
+          "rows": 10096,
           "format_label": "WURCS"
         },
         {
@@ -1531,14 +1513,7 @@
           "format_label": "GlycoCT",
           "failure_class": "glyrepr_restriction",
           "failure_stage": "source_parse",
-          "rows": 2508,
-          "failure_reason": "The GlycoCT record mixes generic and concrete monosaccharide identities; glyrepr prohibits mixing them in one structure."
-        },
-        {
-          "format_label": "GlycoCT",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "source_parse",
-          "rows": 241,
+          "rows": 225,
           "failure_reason": "The GlycoCT record resolves at least one residue to Unk, which is outside glyrepr's known monosaccharide vocabulary."
         },
         {
@@ -1554,6 +1529,13 @@
           "failure_stage": "source_parse",
           "rows": 59,
           "failure_reason": "The record contains an anhydro bridge or unsupported chemical substituent detail outside glyrepr's substituent model."
+        },
+        {
+          "format_label": "GlycoCT",
+          "failure_class": "glyrepr_restriction",
+          "failure_stage": "source_parse",
+          "rows": 2,
+          "failure_reason": "The declared floating parts have no conflict-free simultaneous attachment assignment under glyrepr's structural constraints."
         },
         {
           "format_label": "GlycoWorkbench",
@@ -1591,95 +1573,11 @@
           "failure_reason": "Unsupported GlycoWorkbench monosaccharide: \"Tri\"."
         },
         {
-          "format_label": "IUPAC-compact",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "source_parse",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Fuc(?1-?)[Fuc(?1-?)Gal(?1-?)]GlcNAc(?1-?)Gal(?1-?)Hex(?1-\"; glyrepr construction failed: ℹ In index: 1.\nCaused by error in `validate_glycan_graph()`:\n! Monosaccharides must be either all generic or all concrete."
-        },
-        {
-          "format_label": "IUPAC-compact",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "source_parse",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Fuc(a1-2)Gal(b1-3)[Fuc(a1-4)]GlcNAc(b1-3)Gal(?1-?)Hex(?1-\"; glyrepr construction failed: ℹ In index: 1.\nCaused by error in `validate_glycan_graph()`:\n! Monosaccharides must be either all generic or all concrete."
-        },
-        {
-          "format_label": "IUPAC-compact",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "source_parse",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Gal(?1-?)Hex(?1-\"; glyrepr construction failed: ℹ In index: 1.\nCaused by error in `validate_glycan_graph()`:\n! Monosaccharides must be either all generic or all concrete."
-        },
-        {
-          "format_label": "IUPAC-compact",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "source_parse",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Gal(?1-?)HexNAc(?1-\"; glyrepr construction failed: ℹ In index: 1.\nCaused by error in `validate_glycan_graph()`:\n! Monosaccharides must be either all generic or all concrete."
-        },
-        {
-          "format_label": "IUPAC-compact",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "source_parse",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Gal(b1-2)Hex(?1-\"; glyrepr construction failed: ℹ In index: 1.\nCaused by error in `validate_glycan_graph()`:\n! Monosaccharides must be either all generic or all concrete."
-        },
-        {
-          "format_label": "IUPAC-condensed",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "parse",
-          "rows": 18,
-          "failure_reason": "the source mixes generic and concrete monosaccharide identities, which glyrepr does not allow in one structure"
-        },
-        {
-          "format_label": "IUPAC-extended",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "glyrepr_construction",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Fuc(?1-?)Gal(?1-?)[Fuc(?1-?)]GlcNAc(?1-?)Gal(?1-?)Hex(?1-\"; glyrepr construction failed: ℹ In index: 1. Caused by error in `validate_glycan_graph()`: ! Monosaccharides must be either all generic or all concrete."
-        },
-        {
-          "format_label": "IUPAC-extended",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "glyrepr_construction",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Fuc(a1-2)Gal(b1-3)[Fuc(a1-4)]GlcNAc(b1-3)Gal(?1-?)Hex(?1-\"; glyrepr construction failed: ℹ In index: 1. Caused by error in `validate_glycan_graph()`: ! Monosaccharides must be either all generic or all concrete."
-        },
-        {
-          "format_label": "IUPAC-extended",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "glyrepr_construction",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Gal(?1-?)Hex(?1-\"; glyrepr construction failed: ℹ In index: 1. Caused by error in `validate_glycan_graph()`: ! Monosaccharides must be either all generic or all concrete."
-        },
-        {
-          "format_label": "IUPAC-extended",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "glyrepr_construction",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Gal(?1-?)HexNAc(?1-\"; glyrepr construction failed: ℹ In index: 1. Caused by error in `validate_glycan_graph()`: ! Monosaccharides must be either all generic or all concrete."
-        },
-        {
-          "format_label": "IUPAC-extended",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "glyrepr_construction",
-          "rows": 1,
-          "failure_reason": "Normalized to \"Gal(b1-2)Hex(?1-\"; glyrepr construction failed: ℹ In index: 1. Caused by error in `validate_glycan_graph()`: ! Monosaccharides must be either all generic or all concrete."
-        },
-        {
           "format_label": "WURCS",
           "failure_class": "glyrepr_restriction",
           "failure_stage": "source_parse",
           "rows": 6689,
           "failure_reason": "Invalid WURCS residue ID: \"{\""
-        },
-        {
-          "format_label": "WURCS",
-          "failure_class": "glyrepr_restriction",
-          "failure_stage": "source_parse",
-          "rows": 1449,
-          "failure_reason": "Monosaccharides must be either all generic or all concrete."
         },
         {
           "format_label": "WURCS",
@@ -1701,6 +1599,13 @@
           "failure_stage": "source_parse",
           "rows": 134,
           "failure_reason": "The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a21EEA-1a_1-5."
+        },
+        {
+          "format_label": "WURCS",
+          "failure_class": "glyrepr_restriction",
+          "failure_stage": "source_parse",
+          "rows": 120,
+          "failure_reason": "The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a21FFA-1a_1-?_2*OSO/3=O/3=O."
         }
       ]
     }
