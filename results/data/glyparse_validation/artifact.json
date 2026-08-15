@@ -5,7 +5,7 @@
     "surface": "report",
     "title": "glyparse corpus validation and benchmark",
     "description": "Row-level validation of glyparse against accession references and three external glycan converters.",
-    "generatedAt": "2026-08-15T23:23:02+0800",
+    "generatedAt": "2026-08-16T00:46:49+0800",
     "cards": [
       {
         "id": "rows",
@@ -109,6 +109,32 @@
             "field": "normalized_rate",
             "type": "quantitative",
             "label": "Normalized output rate",
+            "format": "percent"
+          },
+          "color": {
+            "field": "tool",
+            "type": "nominal",
+            "label": "Tool"
+          }
+        }
+      },
+      {
+        "id": "sequence_coverage_rate",
+        "title": "Direct parse coverage rate by source format and tool",
+        "subtitle": "Rate = parsed / directly tested. Missing bars indicate no direct source-format test; fallback-only evidence is excluded.",
+        "type": "bar",
+        "dataset": "coverage_summary",
+        "sourceId": "sequence_coverage_summary",
+        "encodings": {
+          "x": {
+            "field": "format_label",
+            "type": "nominal",
+            "label": "Source format"
+          },
+          "y": {
+            "field": "direct_parse_rate",
+            "type": "quantitative",
+            "label": "Direct parse coverage rate",
             "format": "percent"
           },
           "color": {
@@ -422,6 +448,12 @@
         "sourceId": "sequence_coverage_summary"
       },
       {
+        "id": "sequence_coverage_rate_block",
+        "type": "chart",
+        "chartId": "sequence_coverage_rate",
+        "layout": "full"
+      },
+      {
         "id": "sequence_coverage_block",
         "type": "table",
         "tableId": "sequence_coverage"
@@ -467,7 +499,7 @@
   },
   "snapshot": {
     "version": 1,
-    "generatedAt": "2026-08-15T23:23:02+0800",
+    "generatedAt": "2026-08-16T00:46:49+0800",
     "status": "ready",
     "datasets": {
       "headline": [

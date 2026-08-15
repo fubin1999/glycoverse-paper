@@ -613,6 +613,35 @@ artifact <- list(
         )
       ),
       list(
+        id = "sequence_coverage_rate",
+        title = "Direct parse coverage rate by source format and tool",
+        subtitle = paste0(
+          "Rate = parsed / directly tested. Missing bars indicate no direct ",
+          "source-format test; fallback-only evidence is excluded."
+        ),
+        type = "bar",
+        dataset = "coverage_summary",
+        sourceId = "sequence_coverage_summary",
+        encodings = list(
+          x = list(
+            field = "format_label",
+            type = "nominal",
+            label = "Source format"
+          ),
+          y = list(
+            field = "direct_parse_rate",
+            type = "quantitative",
+            label = "Direct parse coverage rate",
+            format = "percent"
+          ),
+          color = list(
+            field = "tool",
+            type = "nominal",
+            label = "Tool"
+          )
+        )
+      ),
+      list(
         id = "throughput",
         title = "Median parser throughput",
         subtitle = paste0(
@@ -791,6 +820,12 @@ artifact <- list(
         sourceId = "sequence_coverage_summary"
       ),
       list(
+        id = "sequence_coverage_rate_block",
+        type = "chart",
+        chartId = "sequence_coverage_rate",
+        layout = "full"
+      ),
+      list(
         id = "sequence_coverage_block",
         type = "table",
         tableId = "sequence_coverage"
@@ -879,6 +914,13 @@ chart_map <- c(
     "Coverage differs materially by format | Single blue root; direct labels |"
   ),
   paste0(
+    "| Sequence coverage | What share of directly tested sequences can each ",
+    "tool parse in each format? | Comparison / grouped bar | format_label, ",
+    "direct_parse_rate, tool, directly_tested, parsed | Direct coverage varies ",
+    "by tool and format; missing bars are untested | Four approved roots plus ",
+    "legend |"
+  ),
+  paste0(
     "| External coverage | How much external output is semantically comparable? | ",
     "Comparison / grouped bar | format_label, normalized_rate, tool, direct_rows, fallback_rows | ",
     "Tool coverage and format dialect support differ | Three approved roots plus labels |"
@@ -889,7 +931,10 @@ chart_map <- c(
     "Throughput varies by parser; exact medians and repeat ranges are retained | Single blue root; exact tooltips |"
   ),
   "",
-  "Sequence-level coverage is presented as a table because exact lookup across four mutually exclusive states is more important than visual shape."
+  paste0(
+    "The sequence-level coverage table remains alongside the chart for exact ",
+    "lookup across parsed, failed, fallback-only, and not-tested states."
+  )
 )
 writeLines(
   chart_map,
