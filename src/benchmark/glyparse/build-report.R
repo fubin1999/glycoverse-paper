@@ -622,6 +622,8 @@ artifact <- list(
         type = "bar",
         dataset = "coverage_summary",
         sourceId = "sequence_coverage_summary",
+        valueFormat = "percent",
+        labels = list(values = "all"),
         encodings = list(
           x = list(
             field = "format_label",
