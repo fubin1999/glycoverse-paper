@@ -76,6 +76,11 @@ for (format in names(benchmark_definitions)) {
   result$reference_comparison_status <- if (!definition$reference_validation) {
     rep("not_requested", nrow(result))
   } else {
+    equivalent <- rep(FALSE, nrow(result))
+    equivalent[comparable] <- benchmark_semantically_equal(
+      result$parsed_iupac_condensed[comparable],
+      result$reference_normalized_iupac_condensed[comparable]
+    )
     ifelse(
       !has_reference,
       "no_accession_reference",
@@ -86,8 +91,7 @@ for (format in names(benchmark_definitions)) {
           result$parse_status != "parsed",
           "parser_failed",
           ifelse(
-            result$parsed_iupac_condensed ==
-              result$reference_normalized_iupac_condensed,
+            equivalent,
             "equivalent",
             "semantic_difference"
           )

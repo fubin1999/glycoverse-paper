@@ -1,5 +1,5 @@
 {
-  "report_generated_at": "2026-08-15T18:35:36+0800",
+  "report_generated_at": "2026-08-15T22:40:50+0800",
   "glyparse_run": {
     "generated_at": "2026-08-15T18:08:19+0800",
     "r_version": "R version 4.6.1 (2026-06-24)",
@@ -63,6 +63,13 @@
     "rows": 240267,
     "statuses": ["parsed", "failed", "fallback_only", "not_tested"],
     "boolean_rule": "can_parse is populated only for parsed or failed direct source tests; fallback_only and not_tested are missing."
+  },
+  "semantic_comparison": {
+    "normalization": ["parse_iupac_condensed", "fill_anomer_pos"],
+    "strict_contract": "strict_graph_isomorphism",
+    "reducing_end_neutral_contract": "graph_isomorphism_ignore_terminal_reducing_end_token",
+    "reducing_end_neutral_tools": ["glycowork", "glypy"],
+    "fingerprint_semantics": "Rooted residue/linkage graph, substituents, alditol state, floating components, and candidate-parent relations."
   },
   "glycan_format_converter": {
     "generated_at": "2026-08-15T11:50:12+0800",

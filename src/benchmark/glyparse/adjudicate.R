@@ -66,24 +66,18 @@ canonical_features <- function(value) {
 }
 
 strip_reducing_end_token <- function(value) {
-  sub("\\([ab?][0-9?/]+-$", "", value, perl = TRUE)
+  benchmark_strip_reducing_end_token(value)
 }
 
 comparison_contract_for_tool <- function(tool) {
   if (tool %in% c("glycowork", "glypy")) {
-    return("ignore_terminal_reducing_end_token")
+    return("graph_isomorphism_ignore_terminal_reducing_end_token")
   }
-  "strict_canonical"
+  "strict_graph_isomorphism"
 }
 
 canonical_comparison_key <- function(value, comparison_contract) {
-  if (identical(
-    comparison_contract,
-    "ignore_terminal_reducing_end_token"
-  )) {
-    return(strip_reducing_end_token(value))
-  }
-  value
+  benchmark_comparison_key(value, comparison_contract)
 }
 
 stopifnot(
@@ -108,7 +102,7 @@ stopifnot(
 canonical_difference_reason <- function(
   left,
   right,
-  comparison_contract = "strict_canonical"
+  comparison_contract = "strict_graph_isomorphism"
 ) {
   if (!nzchar(left) || !nzchar(right)) {
     return(
@@ -117,20 +111,22 @@ canonical_difference_reason <- function(
   }
   left_key <- canonical_comparison_key(left, comparison_contract)
   right_key <- canonical_comparison_key(right, comparison_contract)
-  if (identical(left_key, right_key)) {
-    if (identical(comparison_contract, "strict_canonical")) {
-      return("The normalized canonical glycans are identical.")
+  if (benchmark_semantically_equal(left, right, comparison_contract)) {
+    if (identical(comparison_contract, "strict_graph_isomorphism")) {
+      return(
+        "The normalized labeled glycan graphs are semantically isomorphic."
+      )
     }
     return(paste0(
-      "The normalized canonical glycans are identical after removing the ",
-      "terminal reducing-end token from both sides."
+      "The normalized labeled glycan graphs are semantically isomorphic after ",
+      "ignoring the terminal reducing-end anomer on both sides."
     ))
   }
   a <- canonical_features(left)
   b <- canonical_features(right)
   ignore_reducing_end <- identical(
     comparison_contract,
-    "ignore_terminal_reducing_end_token"
+    "graph_isomorphism_ignore_terminal_reducing_end_token"
   )
   if (ignore_reducing_end) {
     if (
@@ -408,6 +404,17 @@ for (format in formats) {
     benchmark_cache_dir,
     paste0("glyparse-", format, ".csv.gz")
   ))
+  reference_comparable <- parser$parse_status == "parsed" &
+    parser$reference_validation_applicable &
+    parser$reference_normalization_status == "normalized"
+  parser$reference_comparison_status[reference_comparable] <- ifelse(
+    benchmark_semantically_equal(
+      parser$parsed_iupac_condensed[reference_comparable],
+      parser$reference_normalized_iupac_condensed[reference_comparable]
+    ),
+    "equivalent",
+    "semantic_difference"
+  )
   n <- nrow(parser)
   row <- parser[, c(
     "format",
@@ -436,7 +443,7 @@ for (format in formats) {
       source_sequence = parser$source_sequence[reference_differs],
       comparator = "IUPAC-condensed accession reference",
       evidence_scope = "accession_matched_reference",
-      comparison_contract = "strict_canonical",
+      comparison_contract = "strict_graph_isomorphism",
       glyparse_iupac_condensed = parser$parsed_iupac_condensed[
         reference_differs
       ],
@@ -471,6 +478,8 @@ for (format in formats) {
   external_comparison_key <- list()
   parser_comparison_key <- list()
   reference_comparison_key <- list()
+  external_parser_equivalent <- list()
+  external_reference_equivalent <- list()
   external_scope <- list()
   for (tool in names(external_tools)) {
     prefix <- external_tools[[tool]]
@@ -506,6 +515,18 @@ for (format in formats) {
     external_comparison_key[[tool]] <- canonical_key
     parser_comparison_key[[tool]] <- parser_key
     reference_comparison_key[[tool]] <- reference_key
+    parser_equivalent <- benchmark_semantically_equal(
+      parser$parsed_iupac_condensed,
+      canonical,
+      comparison_contract
+    )
+    reference_equivalent <- benchmark_semantically_equal(
+      parser$reference_normalized_iupac_condensed,
+      canonical,
+      comparison_contract
+    )
+    external_parser_equivalent[[tool]] <- parser_equivalent
+    external_reference_equivalent[[tool]] <- reference_equivalent
     key <- gsub("[^[:alnum:]]", "_", tolower(tool))
     row[[paste0(key, "_conversion_status")]] <- external$conversion_status
     row[[paste0(key, "_conversion_error")]] <- external$conversion_error
@@ -522,7 +543,7 @@ for (format in formats) {
       nzchar(canonical)
     comparison <- rep("not_comparable", n)
     comparison[comparable] <- ifelse(
-      parser_key[comparable] == canonical_key[comparable],
+      parser_equivalent[comparable],
       "equivalent",
       "semantic_difference"
     )
@@ -601,13 +622,10 @@ for (format in formats) {
 
   if (!identical(format, "iupac_condensed")) {
     external_matrix <- do.call(cbind, external_canonical)
-    external_key_matrix <- do.call(cbind, external_comparison_key)
-    parser_key_matrix <- do.call(cbind, parser_comparison_key)
-    reference_key_matrix <- do.call(cbind, reference_comparison_key)
-    consensus_key_matrix <- apply(
-      external_matrix,
-      2L,
-      strip_reducing_end_token
+    parser_equivalent_matrix <- do.call(cbind, external_parser_equivalent)
+    reference_equivalent_matrix <- do.call(
+      cbind,
+      external_reference_equivalent
     )
     scope_matrix <- do.call(cbind, external_scope)
     parser_failed <- row$parse_status == "failed"
@@ -627,29 +645,36 @@ for (format in formats) {
     for (index in which(!parser_failed & !ref_match)) {
       available <- nzchar(external_matrix[index, ])
       values <- external_matrix[index, available]
-      comparison_values <- external_key_matrix[index, available]
-      parser_values <- parser_key_matrix[index, available]
-      reference_values <- reference_key_matrix[index, available]
-      consensus_values <- consensus_key_matrix[index, available]
       scopes <- scope_matrix[index, available]
       direct <- grepl("^direct", scopes)
       direct_parser_hits <- sum(
-        direct & comparison_values == parser_values
+        direct & parser_equivalent_matrix[index, available]
       )
       reference <- row$reference_normalized_iupac_condensed[[index]]
       direct_reference_hits <- if (nzchar(reference)) {
-        sum(direct & comparison_values == reference_values)
+        sum(direct & reference_equivalent_matrix[index, available])
       } else {
         0L
       }
-      direct_values <- consensus_values[direct]
-      direct_counts <- sort(table(direct_values), decreasing = TRUE)
-      direct_consensus <- length(direct_counts) > 0L &&
-        direct_counts[[1L]] >= 2L
-      direct_consensus_value <- if (direct_consensus) {
-        names(direct_counts)[[1L]]
-      } else {
-        ""
+      direct_values <- values[direct]
+      direct_consensus <- FALSE
+      direct_consensus_value <- ""
+      if (length(direct_values) >= 2L) {
+        pairs <- utils::combn(seq_along(direct_values), 2L)
+        for (pair_index in seq_len(ncol(pairs))) {
+          pair <- pairs[, pair_index]
+          if (
+            benchmark_semantically_equal(
+              direct_values[pair[[1L]]],
+              direct_values[pair[[2L]]],
+              "graph_isomorphism_ignore_terminal_reducing_end_token"
+            )
+          ) {
+            direct_consensus <- TRUE
+            direct_consensus_value <- direct_values[pair[[1L]]]
+            break
+          }
+        }
       }
 
       if (ref_diff[[index]] && direct_reference_hits > 0L) {
@@ -680,11 +705,10 @@ for (format in formats) {
         )
       } else if (
         direct_consensus &&
-          !identical(
+          !benchmark_semantically_equal(
             direct_consensus_value,
-            strip_reducing_end_token(
-              row$parsed_iupac_condensed[[index]]
-            )
+            row$parsed_iupac_condensed[[index]],
+            "graph_isomorphism_ignore_terminal_reducing_end_token"
           )
       ) {
         row$adjudication_status[[
@@ -829,14 +853,10 @@ sequence_coverage <- data.frame(
   glyparse_coverage_status = coverage_statuses$glyparse,
   glyparse_can_parse = coverage_can_parse$glyparse,
   glyparse_parse_error = row_results$parse_error,
-  glycanformatconverter_coverage_status =
-    coverage_statuses$glycanformatconverter,
-  glycanformatconverter_can_parse =
-    coverage_can_parse$glycanformatconverter,
-  glycanformatconverter_evidence_scope =
-    row_results$glycanformatconverter_evidence_scope,
-  glycanformatconverter_parse_error =
-    row_results$glycanformatconverter_conversion_error,
+  glycanformatconverter_coverage_status = coverage_statuses$glycanformatconverter,
+  glycanformatconverter_can_parse = coverage_can_parse$glycanformatconverter,
+  glycanformatconverter_evidence_scope = row_results$glycanformatconverter_evidence_scope,
+  glycanformatconverter_parse_error = row_results$glycanformatconverter_conversion_error,
   glypy_coverage_status = coverage_statuses$glypy,
   glypy_can_parse = coverage_can_parse$glypy,
   glypy_evidence_scope = row_results$glypy_evidence_scope,
@@ -993,17 +1013,20 @@ stopifnot(
   all(
     sequence_coverage$glycanformatconverter_coverage_status[
       sequence_coverage$format == "iupac_condensed"
-    ] %in% c("parsed", "failed")
+    ] %in%
+      c("parsed", "failed")
   ),
   all(
     sequence_coverage$glypy_coverage_status[
       sequence_coverage$format == "iupac_condensed"
-    ] %in% c("parsed", "failed")
+    ] %in%
+      c("parsed", "failed")
   ),
   all(
     sequence_coverage$glycowork_coverage_status[
       sequence_coverage$format == "iupac_condensed"
-    ] %in% c("parsed", "failed")
+    ] %in%
+      c("parsed", "failed")
   )
 )
 

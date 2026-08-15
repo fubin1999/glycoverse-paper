@@ -12,18 +12,20 @@ evenly spaced sample, and preserves one result row per source row.
 2. Every other successful glyparse result is serialized with `as.character()`.
    When the same GlyTouCan accession exists in the IUPAC-condensed corpus, the
    reference is independently normalized with `parse_iupac_condensed()` and the
-   two canonical glyrepr serializations are compared.
+   two labeled glyrepr graphs are compared for semantic isomorphism.
 3. GlycanFormatConverter, glycowork, and glypy outputs are retained raw, then
    normalized through current `parse_iupac_condensed()`. Converter availability,
    conversion success, normalization success, and semantic agreement are
    separate fields.
-4. Canonical glyrepr serialization is the primary semantic key. Accession
-   references and GlycanFormatConverter are compared strictly. Because
-   glycowork and glypy do not encode the reducing-end anomer, their comparison
-   keys remove the terminal reducing-end token from both the glyparse and tool
-   canonical strings (for example, `Gal(b1-3)GalNAc(a1-` and
-   `Gal(b1-3)GalNAc(?1-` are both compared as `Gal(b1-3)GalNAc`). Full
-   normalized strings and explicit comparison keys are retained for audit.
+4. Chemically fixed donor positions are completed with `fill_anomer_pos()`,
+   then an isomorphism-invariant labeled-graph fingerprint is used as the
+   semantic key. This prevents implicit donor positions and symmetric branch or
+   node order from producing false differences. Accession references and
+   GlycanFormatConverter are compared strictly. Because glycowork and glypy do
+   not encode the reducing-end anomer, only that graph-level attribute is
+   ignored for their comparisons (for example, `Gal(b1-3)GalNAc(a1-` and
+   `Gal(b1-3)GalNAc(?1-` compare equal).
+   Full normalized strings and display comparison keys are retained for audit.
    Internal anomers/linkages, residue identities, substituents, topology,
    reducing-end alditol state, floating components, floating parent domains,
    and floating substituents remain part of the semantic comparison.

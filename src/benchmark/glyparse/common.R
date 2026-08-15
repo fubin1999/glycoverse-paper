@@ -486,6 +486,249 @@ benchmark_normalize_iupac_fast <- function(values, chunk_size = 500L) {
   result
 }
 
+benchmark_strip_reducing_end_token <- function(value) {
+  sub("\\([ab?][0-9?/]+-$", "", value, perl = TRUE)
+}
+
+benchmark_comparison_key <- function(value, comparison_contract) {
+  if (
+    identical(
+      comparison_contract,
+      "graph_isomorphism_ignore_terminal_reducing_end_token"
+    )
+  ) {
+    return(benchmark_strip_reducing_end_token(value))
+  }
+  value
+}
+
+benchmark_semantic_inventory_key <- function(value, comparison_contract) {
+  residues <- regmatches(
+    value,
+    gregexpr("[[:alnum:]?+-]+(?=\\()", value, perl = TRUE)
+  )[[1L]]
+  linkages <- regmatches(
+    value,
+    gregexpr("(?<=\\()[ab?][0-9?/]+-[0-9?/]*", value, perl = TRUE)
+  )[[1L]]
+  if (identical(residues, "")) {
+    residues <- character()
+  }
+  if (identical(linkages, "")) {
+    linkages <- character()
+  }
+  if (
+    identical(
+      comparison_contract,
+      "graph_isomorphism_ignore_terminal_reducing_end_token"
+    ) &&
+      grepl("\\([ab?][0-9?/]+-$", value, perl = TRUE) &&
+      length(linkages) > 0L
+  ) {
+    linkages <- head(linkages, -1L)
+  }
+  linkages <- sub(
+    "^([ab?])[0-9?/]+-",
+    "\\1*-",
+    linkages,
+    perl = TRUE
+  )
+  paste(
+    paste(sort(residues, method = "radix"), collapse = "\r"),
+    paste(sort(linkages, method = "radix"), collapse = "\r"),
+    grepl("-ol\\(", value),
+    sep = "\n"
+  )
+}
+
+benchmark_semantic_fingerprint_cache <- new.env(parent = emptyenv())
+
+benchmark_semantic_fingerprint <- function(value, comparison_contract) {
+  cache_key <- paste(comparison_contract, value, sep = "\r")
+  if (
+    exists(
+      cache_key,
+      envir = benchmark_semantic_fingerprint_cache,
+      inherits = FALSE
+    )
+  ) {
+    return(get(
+      cache_key,
+      envir = benchmark_semantic_fingerprint_cache,
+      inherits = FALSE
+    ))
+  }
+
+  fingerprint <- tryCatch(
+    {
+      structure <- glyparse::parse_iupac_condensed(
+        value,
+        on_failure = "error",
+        progress = FALSE
+      )
+      structure <- glyrepr::fill_anomer_pos(structure)
+      graph <- glyrepr::get_structure_graphs(structure)
+      parts <- glyrepr:::normalize_floating_parts(graph)
+      substituents <- glyrepr:::normalize_floating_substituents(graph)
+      main_vertices <- glyrepr:::floating_metadata_main_vertices(graph, parts)
+      labels <- glyrepr:::floating_augmented_structure_labels(
+        graph,
+        parts,
+        substituents,
+        main_vertices
+      )
+      vertex_labels <- labels$vertices
+      endpoints <- igraph::as_edgelist(graph, names = FALSE)
+      anomer <- if (
+        identical(
+          comparison_contract,
+          "graph_isomorphism_ignore_terminal_reducing_end_token"
+        )
+      ) {
+        "ignored"
+      } else {
+        igraph::graph_attr(graph, "anomer")
+      }
+      records <- c(
+        paste(
+          "graph",
+          anomer,
+          isTRUE(igraph::graph_attr(graph, "alditol")),
+          sep = "\r"
+        ),
+        paste(
+          "residue",
+          vertex_labels,
+          igraph::V(graph)$mono,
+          igraph::V(graph)$sub,
+          sep = "\r"
+        )
+      )
+      if (nrow(endpoints) > 0L) {
+        records <- c(
+          records,
+          paste(
+            "edge",
+            vertex_labels[endpoints[, 1L]],
+            vertex_labels[endpoints[, 2L]],
+            igraph::E(graph)$linkage,
+            sep = "\r"
+          )
+        )
+      }
+      for (index in seq_along(parts)) {
+        part <- parts[[index]]
+        candidates <- glyrepr:::floating_part_candidate_parents(graph, part)
+        records <- c(
+          records,
+          paste(
+            "floating-part",
+            labels$parts[[index]],
+            vertex_labels[[part$root]],
+            part$linkage,
+            paste(
+              sort(vertex_labels[candidates], method = "radix"),
+              collapse = ","
+            ),
+            sep = "\r"
+          )
+        )
+      }
+      for (index in seq_along(substituents)) {
+        substituent <- substituents[[index]]
+        candidates <- glyrepr:::floating_substituent_candidate_parents(
+          graph,
+          substituent
+        )
+        records <- c(
+          records,
+          paste(
+            "floating-substituent",
+            labels$substituents[[index]],
+            substituent$substituent,
+            paste(
+              sort(vertex_labels[candidates], method = "radix"),
+              collapse = ","
+            ),
+            sep = "\r"
+          )
+        )
+      }
+      paste(sort(records, method = "radix"), collapse = "\n")
+    },
+    error = function(condition) NA_character_
+  )
+  assign(
+    cache_key,
+    fingerprint,
+    envir = benchmark_semantic_fingerprint_cache
+  )
+  fingerprint
+}
+
+benchmark_semantically_equal <- function(
+  left,
+  right,
+  comparison_contract = "strict_graph_isomorphism"
+) {
+  stopifnot(length(left) == length(right))
+  left_key <- benchmark_comparison_key(left, comparison_contract)
+  right_key <- benchmark_comparison_key(right, comparison_contract)
+  equivalent <- !is.na(left_key) &
+    !is.na(right_key) &
+    nzchar(left_key) &
+    nzchar(right_key) &
+    left_key == right_key
+  candidates <- which(
+    !equivalent &
+      !is.na(left) &
+      !is.na(right) &
+      nzchar(left) &
+      nzchar(right)
+  )
+  if (length(candidates) == 0L) {
+    return(equivalent)
+  }
+  inventory_matches <- vapply(
+    candidates,
+    function(index) {
+      identical(
+        benchmark_semantic_inventory_key(
+          left[[index]],
+          comparison_contract
+        ),
+        benchmark_semantic_inventory_key(
+          right[[index]],
+          comparison_contract
+        )
+      )
+    },
+    logical(1)
+  )
+  candidates <- candidates[inventory_matches]
+  if (length(candidates) == 0L) {
+    return(equivalent)
+  }
+  equivalent[candidates] <- vapply(
+    candidates,
+    function(index) {
+      left_fingerprint <- benchmark_semantic_fingerprint(
+        left[[index]],
+        comparison_contract
+      )
+      right_fingerprint <- benchmark_semantic_fingerprint(
+        right[[index]],
+        comparison_contract
+      )
+      !is.na(left_fingerprint) &&
+        !is.na(right_fingerprint) &&
+        identical(left_fingerprint, right_fingerprint)
+    },
+    logical(1)
+  )
+  equivalent
+}
+
 benchmark_tool_version <- function(command, arguments = character()) {
   output <- tryCatch(
     system2(command, arguments, stdout = TRUE, stderr = TRUE),

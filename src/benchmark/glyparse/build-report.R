@@ -64,7 +64,9 @@ parser_benchmark$format_label <- format_summary$format_label[
 ]
 tool_versions <- vapply(
   c("GlycanFormatConverter", "glycowork", "glypy"),
-  function(tool) unique(tool_summary$tool_version[tool_summary$tool == tool])[[1L]],
+  function(tool) {
+    unique(tool_summary$tool_version[tool_summary$tool == tool])[[1L]]
+  },
   character(1)
 )
 
@@ -260,7 +262,7 @@ scope_body <- paste(
       "."
     ),
     "",
-    "A semantic comparison requires both sides to normalize successfully through the current `parse_iupac_condensed()`. Accession references and GlycanFormatConverter use strict glyrepr canonical equality. Because glycowork and glypy do not encode the reducing-end anomer, their comparison keys remove the terminal reducing-end token from both normalized strings. This makes `Gal(b1-3)GalNAc(a1-` and `Gal(b1-3)GalNAc(?1-` equivalent while retaining internal anomers/linkages, residue identity, substituents, topology, reducing-end alditol state, floating components, and candidate-parent domains."
+    "A semantic comparison requires both sides to normalize successfully through the current `parse_iupac_condensed()`. Chemically fixed donor positions are then filled with `fill_anomer_pos()`, and equality is tested with an isomorphism-invariant labeled-graph fingerprint, so implicit donor positions and alternate serializations of symmetric branches compare fairly. Accession references and GlycanFormatConverter retain the reducing-end anomer. Because glycowork and glypy do not encode it, only that graph-level attribute is ignored for those comparisons. This makes `Gal(b1-3)GalNAc(a1-` and `Gal(b1-3)GalNAc(?1-` equivalent while retaining internal anomers/linkages, residue identity, substituents, topology, reducing-end alditol state, floating components, and candidate-parent domains."
   ),
   collapse = "\n"
 )
@@ -268,7 +270,7 @@ methodology_body <- paste(
   c(
     "## Methodology",
     "",
-    "Each source sequence is parsed independently so one invalid or generic row cannot contaminate another row's result. Accession reference matching is exact. External converter availability, conversion success, current-model normalization, comparison contract, comparison key, and semantic agreement are separate fields. Direct cross-tool consensus uses reducing-end-neutral keys so missing root-anomer information cannot create a false outlier. Accessions converted through an accession-matched WURCS fallback are labeled as fallback and are never used to attribute a source-format error to glyparse.",
+    "Each source sequence is parsed independently so one invalid or generic row cannot contaminate another row's result. Accession reference matching is exact. External converter availability, conversion success, current-model normalization, comparison contract, display key, and semantic agreement are separate fields. Labeled-graph fingerprints encode the rooted residue/linkage graph, substituents, alditol state, floating components, and candidate-parent relations. Direct cross-tool consensus uses the same graph comparison while ignoring only the terminal reducing-end anomer, so missing root-anomer information cannot create a false outlier. Accessions converted through an accession-matched WURCS fallback are labeled as fallback and are never used to attribute a source-format error to glyparse.",
     "",
     "Performance uses deterministic, evenly spaced samples of 1,000 successfully parsed concrete glycans, three vectorized repeats per parser. This isolates steady-state vector throughput from the scalar row-level diagnostic run."
   ),
@@ -306,19 +308,36 @@ coverage_body <- paste(
   ),
   collapse = "\n"
 )
+reference_finding <- if (reference_differences == 0L) {
+  paste0(
+    "The normalized accession reference agrees with glyparse for **100%** of ",
+    "the ",
+    format(reference_compared, big.mark = ",", scientific = FALSE),
+    " comparable non-condensed rows. The previously reported G12345BK ",
+    "differences were false positives: GlycoCT, WURCS, and compact assigned an ",
+    "unknown linkage to different but automorphic terminal Man nodes, while ",
+    "GWB explicitly wrote Man's chemically fixed donor position where the ",
+    "reference omitted it. Chemistry-aware labeled-graph isomorphism now ",
+    "recognizes all four serializations as the same glycan."
+  )
+} else {
+  paste0(
+    "The normalized accession reference agrees with glyparse for **",
+    sprintf("%.3f%%", 100 * reference_equivalent / reference_compared),
+    "** of comparable non-condensed rows. The remaining ",
+    reference_differences,
+    " reference difference(s) and their component-level reasons are retained ",
+    "in the evidence ledger. Direct external conversion supports glyparse ",
+    "being the outlier for ",
+    outlier_rows,
+    " format-row(s)."
+  )
+}
 findings_body <- paste(
   c(
     "## Findings",
     "",
-    paste0(
-      "The normalized accession reference agrees with glyparse for **",
-      sprintf("%.3f%%", 100 * reference_equivalent / reference_compared),
-      "** of comparable non-condensed rows. The ",
-      reference_differences,
-      " reference differences represent two accessions and concern anomeric-carbon specificity on mannose residues. Direct external conversion supports glyparse being the outlier for ",
-      outlier_rows,
-      " format-row(s); the other reference differences remain unresolved or support the reference/source distinction described in the evidence table."
-    ),
+    reference_finding,
     "",
     "GlycanFormatConverter direct coverage is format-dependent. It directly attempts GlycoCT, WURCS, IUPAC-extended, and IUPAC-condensed in this run; 19,483 of 19,621 IUPAC-condensed rows converted, while only 27 IUPAC-extended rows converted. GLYCAM-IUPAC, GWB, and compact results from this tool use accession-matched WURCS fallback and are not direct source-parser evidence."
   ),
@@ -328,17 +347,29 @@ limitations_body <- paste(
   c(
     "## Limitations and robustness",
     "",
-    "Canonical comparison is intentionally limited to chemistry representable by the current glyrepr model. An external output that cannot be normalized is reported as unavailable rather than as a semantic disagreement. Agreement between two direct converters without an accession reference is retained as an unresolved external-consensus difference, not attributed to glyparse, because shared information loss cannot be excluded. The reducing-end-neutral contract for glycowork and glypy ignores only the terminal root token; it does not forgive internal anomer/linkage, alditol, topology, residue, substituent, or floating-component differences. Raw string equality is never used.",
+    "Graph comparison is intentionally limited to chemistry representable by the current glyrepr model. An external output that cannot be normalized is reported as unavailable rather than as a semantic disagreement. Agreement between two direct converters without an accession reference is retained as an unresolved external-consensus difference, not attributed to glyparse, because shared information loss cannot be excluded. The reducing-end-neutral contract for glycowork and glypy ignores only the graph-level terminal root anomer; it does not forgive internal anomer/linkage, alditol, topology, residue, substituent, or floating-component differences. Raw string equality is only a fast path; every unequal serialization that could share the same residue/linkage inventory is adjudicated by labeled-graph isomorphism.",
     "",
     "Detailed failure classifications reuse exact-row diagnostics only when accession and full source sequence match the prior diagnostic corpus; otherwise the current internal parser stage is replayed. Every final failure row retains the diagnostic source."
   ),
   collapse = "\n"
 )
+reference_next_step <- if (reference_differences == 0L) {
+  "No accession-reference semantic outlier remains for manual review."
+} else {
+  paste0(
+    "Review the ",
+    reference_differences,
+    " remaining accession-reference difference(s) in the row-level ledger."
+  )
+}
 next_steps_body <- paste(
   c(
     "## Recommended next steps",
     "",
-    "Review the supported outlier accession(s) first, then the unresolved five-row reference ledger. For parser coverage, prioritize the largest glyrepr-restriction families separately from glyparse implementation limitations. Re-run the workflow after any parser or glyrepr semantic change; the source revisions and corpus hashes in the cache metadata make changes auditable."
+    paste(
+      reference_next_step,
+      "For parser coverage, prioritize the largest glyrepr-restriction families separately from glyparse implementation limitations. Re-run the workflow after any parser or glyrepr semantic change; the source revisions and corpus hashes in the cache metadata make changes auditable."
+    )
   ),
   collapse = "\n"
 )
@@ -499,7 +530,7 @@ artifact <- list(
       list(
         id = "reference",
         description = paste0(
-          "Canonical equality among accession-matched non-condensed rows."
+          "Labeled-graph isomorphism among accession-matched non-condensed rows."
         ),
         dataset = "headline",
         sourceId = "format_summary",
@@ -896,6 +927,16 @@ run_metadata <- list(
     boolean_rule = paste0(
       "can_parse is populated only for parsed or failed direct source tests; ",
       "fallback_only and not_tested are missing."
+    )
+  ),
+  semantic_comparison = list(
+    normalization = c("parse_iupac_condensed", "fill_anomer_pos"),
+    strict_contract = "strict_graph_isomorphism",
+    reducing_end_neutral_contract = "graph_isomorphism_ignore_terminal_reducing_end_token",
+    reducing_end_neutral_tools = c("glycowork", "glypy"),
+    fingerprint_semantics = paste0(
+      "Rooted residue/linkage graph, substituents, alditol state, floating ",
+      "components, and candidate-parent relations."
     )
   ),
   glycan_format_converter = gfc_metadata
