@@ -25,6 +25,10 @@ FORMATS = {
         "glycan_sequences_iupac_compact.csv",
         "sequence_iupac_compact",
     ),
+    "iupac_condensed": (
+        "glycan_sequences_iupac_condensed.csv",
+        "sequence_iupac_condensed",
+    ),
     "iupac_extended": (
         "glycan_sequences_iupac_extended.csv",
         "sequence_iupac_extended",
@@ -92,7 +96,7 @@ def glycowork_converter(format_name):
         elif format_name == "wurcs":
             raw = wurcs_to_iupac(sequence)
             scope = "direct_source_converter"
-        elif format_name == "iupac_compact":
+        elif format_name in {"iupac_compact", "iupac_condensed"}:
             raw = sequence
             scope = "direct_general_canonicalizer"
         else:
@@ -126,6 +130,13 @@ def glypy_converter(format_name):
         if format_name == "iupac_extended":
             normalized = normalize_open_extended(sequence)
             structure = iupac.loads(normalized, dialect="extended")
+            return (
+                serialize(structure),
+                "direct_with_open_reducing_end_normalization",
+            )
+        if format_name == "iupac_condensed":
+            normalized = re.sub(r"\([ab?][0-9?/]+-$", "", sequence)
+            structure = iupac.loads(normalized, dialect="simple")
             return (
                 serialize(structure),
                 "direct_with_open_reducing_end_normalization",
@@ -181,12 +192,23 @@ def convert_record(payload):
         error = ""
     except Exception as condition:
         output = ""
-        scope = (
-            "accession_matched_wurcs_fallback"
-            if WORKER_TOOL == "glypy"
-            and WORKER_FORMAT in {"glycam_iupac", "iupac_compact"}
-            else "direct_source_converter"
-        )
+        if WORKER_TOOL == "glypy" and WORKER_FORMAT in {
+            "glycam_iupac",
+            "iupac_compact",
+        }:
+            scope = "accession_matched_wurcs_fallback"
+        elif WORKER_TOOL == "glypy" and WORKER_FORMAT in {
+            "iupac_condensed",
+            "iupac_extended",
+        }:
+            scope = "direct_with_open_reducing_end_normalization"
+        elif WORKER_TOOL == "glycowork" and WORKER_FORMAT in {
+            "iupac_compact",
+            "iupac_condensed",
+        }:
+            scope = "direct_general_canonicalizer"
+        else:
+            scope = "direct_source_converter"
         status = "failed"
         error = normalize_error(condition)
     finally:

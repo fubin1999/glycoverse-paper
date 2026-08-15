@@ -219,9 +219,14 @@ reuse_gfc_cache <- function() {
 }
 
 reused <- reuse_gfc_cache()
-formats_to_run <- "iupac_extended"
+formats_to_run <- c("iupac_condensed", "iupac_extended")
 if (is.null(reused)) {
-  formats_to_run <- c("glycoct", "iupac_extended", "wurcs")
+  formats_to_run <- c(
+    "glycoct",
+    "iupac_condensed",
+    "iupac_extended",
+    "wurcs"
+  )
 }
 requests <- do.call(
   rbind,
@@ -231,6 +236,7 @@ requests <- do.call(
     source_format <- switch(
       format,
       glycoct = "GlycoCT",
+      iupac_condensed = "IUPAC-Condensed",
       iupac_extended = "IUPAC-Extended",
       wurcs = "WURCS"
     )
@@ -279,10 +285,13 @@ direct <- direct[order(direct$format, direct$row_index), ]
 
 wurcs_direct <- direct[direct$format == "wurcs", ]
 final_rows <- list()
-for (format in setdiff(names(benchmark_definitions), "iupac_condensed")) {
+for (format in names(benchmark_definitions)) {
   definition <- benchmark_definitions[[format]]
   corpus <- benchmark_read_corpus(definition)
-  if (format %in% c("glycoct", "iupac_extended", "wurcs")) {
+  if (
+    format %in%
+      c("glycoct", "iupac_condensed", "iupac_extended", "wurcs")
+  ) {
     result <- direct[direct$format == format, ]
   } else {
     matched <- match(corpus$glytoucan_ac, wurcs_direct$glytoucan_ac)

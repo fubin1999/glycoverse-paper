@@ -11,6 +11,9 @@
 "iupac_compact","GlycanFormatConverter","2.10.3","strict_canonical",24193,24187,6,24038,149,24038,24035,3,0,24193
 "iupac_compact","glycowork","1.9.0","ignore_terminal_reducing_end_token",24193,23934,259,19184,4750,19184,15142,4042,24193,0
 "iupac_compact","glypy","1.0.17","ignore_terminal_reducing_end_token",24193,24193,0,19229,4964,19229,16328,2901,0,24193
+"iupac_condensed","GlycanFormatConverter","2.10.3","strict_canonical",19621,19483,138,19465,18,0,0,0,19621,0
+"iupac_condensed","glycowork","1.9.0","ignore_terminal_reducing_end_token",19621,19621,0,3,19618,0,0,0,19621,0
+"iupac_condensed","glypy","1.0.17","ignore_terminal_reducing_end_token",19621,19557,64,19365,192,0,0,0,19621,0
 "iupac_extended","GlycanFormatConverter","2.10.3","strict_canonical",20082,27,20055,27,0,27,15,12,20082,0
 "iupac_extended","glycowork","1.9.0","ignore_terminal_reducing_end_token",20082,20082,0,0,20082,0,0,0,20082,0
 "iupac_extended","glypy","1.0.17","ignore_terminal_reducing_end_token",20082,20081,1,19843,238,19843,16104,3739,20082,0

@@ -6,8 +6,9 @@ evenly spaced sample, and preserves one result row per source row.
 
 ## Validation contract
 
-1. `parse_iupac_condensed()` is measured for parse coverage and speed only.
-   No correctness claim is made for that source format.
+1. IUPAC-condensed source strings are tested for parse coverage with glyparse,
+   GlycanFormatConverter, glycowork, and glypy, but no correctness claim is made
+   for that source format.
 2. Every other successful glyparse result is serialized with `as.character()`.
    When the same GlyTouCan accession exists in the IUPAC-condensed corpus, the
    reference is independently normalized with `parse_iupac_condensed()` and the
@@ -63,11 +64,24 @@ Final artifacts include:
 
 - `format_summary.csv` and `parser_benchmark.csv`
 - `external_tool_summary.csv`
+- `sequence_coverage.csv.gz`, with one row per tested source sequence and
+  direct parseability, evidence-scope, and failure-reason fields for glyparse,
+  GlycanFormatConverter, glypy, and glycowork
+- `sequence_coverage_summary.csv`, with format-by-tool coverage counts
 - `parse_failures.csv.gz`, with one detailed reason per failed source row
 - `semantic_disagreements.csv.gz`, with one component-level reason per
   normalized glyparse/comparator pair
 - `validation_rows.csv.gz`, the complete joined evidence ledger
 - `report.md`, `artifact.json`, and the self-contained `report.html`
+
+Sequence coverage uses four statuses: `parsed` and `failed` are direct tests of
+the source sequence; `fallback_only` means the available result came from an
+accession-matched WURCS sequence rather than the source format; and `not_tested`
+means the tool was not run for that format. The corresponding `can_parse`
+field is `TRUE` or `FALSE` only for direct tests and blank otherwise. For glypy
+IUPAC-condensed coverage, the dangling reducing-end token is removed before
+calling its simple-IUPAC parser because glypy does not encode reducing-end
+anomers; this normalization is recorded in the row's evidence-scope field.
 
 The adjudication stage can reuse exact-row diagnostic evidence from a previous
 audit when `GLYPARSE_PRIOR_DIAGNOSTIC_DIR` points to it. If that directory is

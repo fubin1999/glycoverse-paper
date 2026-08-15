@@ -474,9 +474,6 @@ for (format in formats) {
   external_scope <- list()
   for (tool in names(external_tools)) {
     prefix <- external_tools[[tool]]
-    if (identical(format, "iupac_condensed")) {
-      next
-    }
     external <- benchmark_read_csv(file.path(
       benchmark_cache_dir,
       paste0("external-", prefix, "-", format, ".csv.gz")
@@ -511,6 +508,7 @@ for (format in formats) {
     reference_comparison_key[[tool]] <- reference_key
     key <- gsub("[^[:alnum:]]", "_", tolower(tool))
     row[[paste0(key, "_conversion_status")]] <- external$conversion_status
+    row[[paste0(key, "_conversion_error")]] <- external$conversion_error
     row[[paste0(key, "_normalization_status")]] <-
       external$normalization_status
     row[[paste0(key, "_normalized_iupac_condensed")]] <- canonical
@@ -518,7 +516,10 @@ for (format in formats) {
     row[[paste0(key, "_glyparse_comparison_key")]] <- parser_key
     row[[paste0(key, "_comparison_key")]] <- canonical_key
     row[[paste0(key, "_evidence_scope")]] <- external$evidence_scope
-    comparable <- parser$parse_status == "parsed" & nzchar(canonical)
+    semantic_validation <- !identical(format, "iupac_condensed")
+    comparable <- semantic_validation &
+      parser$parse_status == "parsed" &
+      nzchar(canonical)
     comparison <- rep("not_comparable", n)
     comparison[comparable] <- ifelse(
       parser_key[comparable] == canonical_key[comparable],
@@ -789,9 +790,115 @@ rownames(difference_results) <- NULL
 rownames(format_summaries) <- NULL
 rownames(tool_summaries) <- NULL
 
+external_coverage_status <- function(rows, prefix) {
+  scope <- rows[[paste0(prefix, "_evidence_scope")]]
+  conversion <- rows[[paste0(prefix, "_conversion_status")]]
+  status <- rep("not_tested", nrow(rows))
+  status[scope == "accession_matched_wurcs_fallback"] <- "fallback_only"
+  direct <- grepl("^direct", scope)
+  status[direct] <- ifelse(
+    conversion[direct] == "converted",
+    "parsed",
+    "failed"
+  )
+  status
+}
+
+coverage_statuses <- list(
+  glyparse = ifelse(row_results$parse_status == "parsed", "parsed", "failed"),
+  glycanformatconverter = external_coverage_status(
+    row_results,
+    "glycanformatconverter"
+  ),
+  glypy = external_coverage_status(row_results, "glypy"),
+  glycowork = external_coverage_status(row_results, "glycowork")
+)
+coverage_can_parse <- lapply(coverage_statuses, function(status) {
+  ifelse(
+    status == "parsed",
+    TRUE,
+    ifelse(status == "failed", FALSE, NA)
+  )
+})
+sequence_coverage <- data.frame(
+  format = row_results$format,
+  format_label = row_results$format_label,
+  row_index = row_results$row_index,
+  glytoucan_ac = row_results$glytoucan_ac,
+  source_sequence = row_results$source_sequence,
+  glyparse_coverage_status = coverage_statuses$glyparse,
+  glyparse_can_parse = coverage_can_parse$glyparse,
+  glyparse_parse_error = row_results$parse_error,
+  glycanformatconverter_coverage_status =
+    coverage_statuses$glycanformatconverter,
+  glycanformatconverter_can_parse =
+    coverage_can_parse$glycanformatconverter,
+  glycanformatconverter_evidence_scope =
+    row_results$glycanformatconverter_evidence_scope,
+  glycanformatconverter_parse_error =
+    row_results$glycanformatconverter_conversion_error,
+  glypy_coverage_status = coverage_statuses$glypy,
+  glypy_can_parse = coverage_can_parse$glypy,
+  glypy_evidence_scope = row_results$glypy_evidence_scope,
+  glypy_parse_error = row_results$glypy_conversion_error,
+  glycowork_coverage_status = coverage_statuses$glycowork,
+  glycowork_can_parse = coverage_can_parse$glycowork,
+  glycowork_evidence_scope = row_results$glycowork_evidence_scope,
+  glycowork_parse_error = row_results$glycowork_conversion_error,
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+coverage_tool_labels <- c(
+  glyparse = "glyparse",
+  glycanformatconverter = "GlycanFormatConverter",
+  glypy = "glypy",
+  glycowork = "glycowork"
+)
+coverage_summary_rows <- list()
+coverage_summary_index <- 0L
+for (format in names(benchmark_definitions)) {
+  format_rows <- sequence_coverage$format == format
+  for (tool in names(coverage_statuses)) {
+    coverage_summary_index <- coverage_summary_index + 1L
+    status <- coverage_statuses[[tool]][format_rows]
+    parsed <- sum(status == "parsed")
+    failed <- sum(status == "failed")
+    directly_tested <- parsed + failed
+    coverage_summary_rows[[coverage_summary_index]] <- data.frame(
+      format = format,
+      format_label = benchmark_definitions[[format]]$label,
+      tool = coverage_tool_labels[[tool]],
+      rows = length(status),
+      directly_tested = directly_tested,
+      parsed = parsed,
+      failed = failed,
+      fallback_only = sum(status == "fallback_only"),
+      not_tested = sum(status == "not_tested"),
+      direct_parse_rate = if (directly_tested == 0L) {
+        NA_real_
+      } else {
+        parsed / directly_tested
+      },
+      stringsAsFactors = FALSE,
+      check.names = FALSE
+    )
+  }
+}
+sequence_coverage_summary <- do.call(rbind, coverage_summary_rows)
+rownames(sequence_coverage_summary) <- NULL
+
 benchmark_write_csv(
   row_results,
   file.path(benchmark_output_dir, "validation_rows.csv.gz")
+)
+benchmark_write_csv(
+  sequence_coverage,
+  file.path(benchmark_output_dir, "sequence_coverage.csv.gz")
+)
+benchmark_write_csv(
+  sequence_coverage_summary,
+  file.path(benchmark_output_dir, "sequence_coverage_summary.csv")
 )
 benchmark_write_csv(
   failure_results,
@@ -872,6 +979,31 @@ stopifnot(
     !difference_results$comparator %in% c("glycowork", "glypy") |
       difference_results$glyparse_comparison_key !=
         difference_results$comparator_comparison_key
+  ),
+  nrow(sequence_coverage) == nrow(row_results),
+  !anyDuplicated(sequence_coverage[c("format", "row_index")]),
+  all(
+    unlist(coverage_statuses, use.names = FALSE) %in%
+      c("parsed", "failed", "fallback_only", "not_tested")
+  ),
+  all(
+    sequence_coverage$glyparse_can_parse ==
+      (sequence_coverage$glyparse_coverage_status == "parsed")
+  ),
+  all(
+    sequence_coverage$glycanformatconverter_coverage_status[
+      sequence_coverage$format == "iupac_condensed"
+    ] %in% c("parsed", "failed")
+  ),
+  all(
+    sequence_coverage$glypy_coverage_status[
+      sequence_coverage$format == "iupac_condensed"
+    ] %in% c("parsed", "failed")
+  ),
+  all(
+    sequence_coverage$glycowork_coverage_status[
+      sequence_coverage$format == "iupac_condensed"
+    ] %in% c("parsed", "failed")
   )
 )
 

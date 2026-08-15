@@ -121,6 +121,8 @@ public final class GfcBatchRunner {
                 InputFormat directFormat;
                 if ("WURCS".equals(inputFormat)) {
                     directFormat = InputFormat.WURCS;
+                } else if ("IUPAC-Condensed".equals(inputFormat)) {
+                    directFormat = InputFormat.IUPAC_CONDENSED;
                 } else if ("IUPAC-Extended".equals(inputFormat)) {
                     directFormat = InputFormat.IUPAC_EXTENDED;
                 } else {

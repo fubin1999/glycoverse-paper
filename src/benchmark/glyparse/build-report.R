@@ -25,6 +25,10 @@ failure_summary <- benchmark_read_csv(file.path(
   benchmark_output_dir,
   "failure_reason_summary.csv"
 ))
+coverage_summary <- benchmark_read_csv(file.path(
+  benchmark_output_dir,
+  "sequence_coverage_summary.csv"
+))
 validation_rows <- benchmark_read_csv(file.path(
   benchmark_output_dir,
   "validation_rows.csv.gz"
@@ -51,6 +55,9 @@ tool_summary$comparable_rate <-
 tool_summary$format_label <- format_summary$format_label[
   match(tool_summary$format, format_summary$format)
 ]
+coverage_summary$direct_parse_rate <- as.numeric(
+  coverage_summary$direct_parse_rate
+)
 
 parser_benchmark$format_label <- format_summary$format_label[
   match(parser_benchmark$format, format_summary$format)
@@ -128,6 +135,37 @@ top_failure_reasons <- top_failure_reasons[, c(
 )]
 rownames(top_failure_reasons) <- NULL
 
+coverage_tool_order <- c(
+  "glyparse",
+  "GlycanFormatConverter",
+  "glypy",
+  "glycowork"
+)
+coverage_totals <- do.call(
+  rbind,
+  lapply(coverage_tool_order, function(tool) {
+    group <- coverage_summary[coverage_summary$tool == tool, ]
+    directly_tested <- sum(group$directly_tested)
+    data.frame(
+      tool = tool,
+      rows = sum(group$rows),
+      directly_tested = directly_tested,
+      parsed = sum(group$parsed),
+      failed = sum(group$failed),
+      fallback_only = sum(group$fallback_only),
+      not_tested = sum(group$not_tested),
+      direct_parse_rate = if (directly_tested == 0L) {
+        NA_real_
+      } else {
+        sum(group$parsed) / directly_tested
+      },
+      stringsAsFactors = FALSE,
+      check.names = FALSE
+    )
+  })
+)
+rownames(coverage_totals) <- NULL
+
 headline <- data.frame(
   total_rows = total_rows,
   total_parsed = total_parsed,
@@ -180,7 +218,9 @@ technical_summary_body <- paste(
       "** glyparse outlier format-row(s), covering accession(s): ",
       outlier_text,
       "."
-    )
+    ),
+    "",
+    "A separate sequence-level coverage ledger records whether each of the four tested tools parsed each exact source sequence. Direct failures, accession-fallback-only results, and untested formats remain distinct."
   ),
   collapse = "\n"
 )
@@ -189,7 +229,7 @@ scope_body <- paste(
     "## Scope and definitions",
     "",
     paste0(
-      "IUPAC-condensed input is assessed only for parse coverage and performance, as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter ",
+      "IUPAC-condensed input is assessed with all four tools for parse coverage and with glyparse for performance, but is excluded from correctness adjudication as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter ",
       tool_versions[["GlycanFormatConverter"]],
       ", glycowork ",
       tool_versions[["glycowork"]],
@@ -212,6 +252,38 @@ methodology_body <- paste(
   ),
   collapse = "\n"
 )
+coverage_lines <- vapply(
+  seq_len(nrow(coverage_totals)),
+  function(index) {
+    row <- coverage_totals[index, ]
+    paste0(
+      "- **",
+      row$tool,
+      ":** parsed ",
+      format(row$parsed, big.mark = ",", scientific = FALSE),
+      " of ",
+      format(row$directly_tested, big.mark = ",", scientific = FALSE),
+      " directly tested rows (",
+      sprintf("%.2f%%", 100 * row$direct_parse_rate),
+      "); ",
+      format(row$fallback_only, big.mark = ",", scientific = FALSE),
+      " fallback-only and ",
+      format(row$not_tested, big.mark = ",", scientific = FALSE),
+      " not tested."
+    )
+  },
+  character(1)
+)
+coverage_body <- paste(
+  c(
+    "## Direct sequence coverage keeps fallback evidence separate",
+    "",
+    "The row-level coverage report contains one record for every source sequence. `parsed` and `failed` are direct tests of that exact source string. `fallback_only` means the available conversion used an accession-matched WURCS sequence instead, and `not_tested` means the tool was not run for that source format. Boolean `can_parse` values are therefore populated only for direct tests. For glypy IUPAC-condensed input, the terminal open reducing-end token is removed before its simple-IUPAC parser is called, matching the agreed convention that glypy does not encode reducing-end anomers; the row retains this evidence scope.",
+    "",
+    coverage_lines
+  ),
+  collapse = "\n"
+)
 findings_body <- paste(
   c(
     "## Findings",
@@ -226,7 +298,7 @@ findings_body <- paste(
       " format-row(s); the other reference differences remain unresolved or support the reference/source distinction described in the evidence table."
     ),
     "",
-    "GlycanFormatConverter direct coverage is format-dependent. It directly handles GlycoCT and WURCS in this run, but only 27 IUPAC-extended rows converted successfully; GLYCAM-IUPAC, GWB, and compact results from this tool use accession-matched WURCS fallback and are not direct source-parser evidence."
+    "GlycanFormatConverter direct coverage is format-dependent. It directly attempts GlycoCT, WURCS, IUPAC-extended, and IUPAC-condensed in this run; 19,483 of 19,621 IUPAC-condensed rows converted, while only 27 IUPAC-extended rows converted. GLYCAM-IUPAC, GWB, and compact results from this tool use accession-matched WURCS fallback and are not direct source-parser evidence."
   ),
   collapse = "\n"
 )
@@ -256,6 +328,8 @@ report_markdown <- c(
   scope_body,
   "",
   methodology_body,
+  "",
+  coverage_body,
   "",
   findings_body,
   "",
@@ -339,6 +413,23 @@ source_disagreements <- list(
       "'results/data/glyparse_validation/semantic_disagreements.csv.gz')"
     ),
     description = "Read the complete normalized glyparse-versus-comparator disagreement ledger."
+  )
+)
+source_coverage <- list(
+  id = "sequence_coverage_summary",
+  label = "Sequence-level parser coverage summary",
+  path = "results/data/glyparse_validation/sequence_coverage_summary.csv",
+  query = list(
+    engine = "DuckDB",
+    language = "SQL",
+    sql = paste0(
+      "SELECT * FROM read_csv_auto(",
+      "'results/data/glyparse_validation/sequence_coverage_summary.csv')"
+    ),
+    description = paste0(
+      "Read direct parse, failure, fallback-only, and not-tested counts by ",
+      "tool and source format."
+    )
   )
 )
 
@@ -560,6 +651,39 @@ artifact <- list(
             type = "text"
           )
         )
+      ),
+      list(
+        id = "sequence_coverage",
+        title = "Sequence-level parser coverage by format",
+        dataset = "coverage_summary",
+        sourceId = "sequence_coverage_summary",
+        defaultSort = list(field = "tool", direction = "asc"),
+        columns = list(
+          list(field = "tool", label = "Tool", type = "text"),
+          list(field = "format_label", label = "Format", type = "text"),
+          list(
+            field = "directly_tested",
+            label = "Directly tested",
+            format = "number"
+          ),
+          list(field = "parsed", label = "Parsed", format = "number"),
+          list(field = "failed", label = "Failed", format = "number"),
+          list(
+            field = "direct_parse_rate",
+            label = "Direct parse rate",
+            format = "percent"
+          ),
+          list(
+            field = "fallback_only",
+            label = "Fallback only",
+            format = "number"
+          ),
+          list(
+            field = "not_tested",
+            label = "Not tested",
+            format = "number"
+          )
+        )
       )
     ),
     sources = list(
@@ -567,7 +691,8 @@ artifact <- list(
       source_tools,
       source_benchmark,
       source_failures,
-      source_disagreements
+      source_disagreements,
+      source_coverage
     ),
     blocks = list(
       list(
@@ -588,7 +713,12 @@ artifact <- list(
       list(
         id = "scope",
         type = "markdown",
-        body = paste(scope_body, methodology_body, sep = "\n\n")
+        body = scope_body
+      ),
+      list(
+        id = "methodology",
+        type = "markdown",
+        body = methodology_body
       ),
       list(
         id = "parse_coverage_block",
@@ -600,6 +730,17 @@ artifact <- list(
         id = "format_detail_block",
         type = "table",
         tableId = "format_detail"
+      ),
+      list(
+        id = "sequence_coverage_findings",
+        type = "markdown",
+        body = coverage_body,
+        sourceId = "sequence_coverage_summary"
+      ),
+      list(
+        id = "sequence_coverage_block",
+        type = "table",
+        tableId = "sequence_coverage"
       ),
       list(
         id = "findings",
@@ -631,7 +772,12 @@ artifact <- list(
       list(
         id = "limitations",
         type = "markdown",
-        body = paste(limitations_body, next_steps_body, sep = "\n\n")
+        body = limitations_body
+      ),
+      list(
+        id = "next_steps",
+        type = "markdown",
+        body = next_steps_body
       )
     )
   ),
@@ -644,6 +790,7 @@ artifact <- list(
       format_summary = format_summary,
       tool_summary = tool_summary,
       parser_benchmark = parser_benchmark,
+      coverage_summary = coverage_summary,
       reference_review = reference_review,
       failure_class_summary = failure_class_summary,
       top_failure_reasons = top_failure_reasons
@@ -654,7 +801,8 @@ artifact <- list(
     source_tools,
     source_benchmark,
     source_failures,
-    source_disagreements
+    source_disagreements,
+    source_coverage
   )
 )
 
@@ -686,7 +834,9 @@ chart_map <- c(
     "| Throughput | What is steady-state parser throughput? | ",
     "Ranking / bar | format_label, median_rows_per_second, sample_rows, repeats | ",
     "GLYCAM normalization is slower than the other parsers | Single blue root; exact tooltips |"
-  )
+  ),
+  "",
+  "Sequence-level coverage is presented as a table because exact lookup across four mutually exclusive states is more important than visual shape."
 )
 writeLines(
   chart_map,
@@ -717,6 +867,14 @@ run_metadata <- list(
         formats = unique(group$format)
       )
     }
+  ),
+  sequence_coverage = list(
+    rows = nrow(validation_rows),
+    statuses = c("parsed", "failed", "fallback_only", "not_tested"),
+    boolean_rule = paste0(
+      "can_parse is populated only for parsed or failed direct source tests; ",
+      "fallback_only and not_tested are missing."
+    )
   ),
   glycan_format_converter = gfc_metadata
 )

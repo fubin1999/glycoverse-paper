@@ -5,7 +5,7 @@
     "surface": "report",
     "title": "glyparse corpus validation and benchmark",
     "description": "Row-level validation of glyparse against accession references and three external glycan converters.",
-    "generatedAt": "2026-08-15T10:56:23+0800",
+    "generatedAt": "2026-08-15T12:23:15+0800",
     "cards": [
       {
         "id": "rows",
@@ -256,6 +256,58 @@
             "type": "text"
           }
         ]
+      },
+      {
+        "id": "sequence_coverage",
+        "title": "Sequence-level parser coverage by format",
+        "dataset": "coverage_summary",
+        "sourceId": "sequence_coverage_summary",
+        "defaultSort": {
+          "field": "tool",
+          "direction": "asc"
+        },
+        "columns": [
+          {
+            "field": "tool",
+            "label": "Tool",
+            "type": "text"
+          },
+          {
+            "field": "format_label",
+            "label": "Format",
+            "type": "text"
+          },
+          {
+            "field": "directly_tested",
+            "label": "Directly tested",
+            "format": "number"
+          },
+          {
+            "field": "parsed",
+            "label": "Parsed",
+            "format": "number"
+          },
+          {
+            "field": "failed",
+            "label": "Failed",
+            "format": "number"
+          },
+          {
+            "field": "direct_parse_rate",
+            "label": "Direct parse rate",
+            "format": "percent"
+          },
+          {
+            "field": "fallback_only",
+            "label": "Fallback only",
+            "format": "number"
+          },
+          {
+            "field": "not_tested",
+            "label": "Not tested",
+            "format": "number"
+          }
+        ]
       }
     ],
     "sources": [
@@ -313,6 +365,17 @@
           "sql": "SELECT * FROM read_csv_auto('results/data/glyparse_validation/semantic_disagreements.csv.gz')",
           "description": "Read the complete normalized glyparse-versus-comparator disagreement ledger."
         }
+      },
+      {
+        "id": "sequence_coverage_summary",
+        "label": "Sequence-level parser coverage summary",
+        "path": "results/data/glyparse_validation/sequence_coverage_summary.csv",
+        "query": {
+          "engine": "DuckDB",
+          "language": "SQL",
+          "sql": "SELECT * FROM read_csv_auto('results/data/glyparse_validation/sequence_coverage_summary.csv')",
+          "description": "Read direct parse, failure, fallback-only, and not-tested counts by tool and source format."
+        }
       }
     ],
     "blocks": [
@@ -324,7 +387,7 @@
       {
         "id": "summary",
         "type": "markdown",
-        "body": "## Technical summary\n\nThe benchmark evaluated **240,267** source sequences across seven formats. glyparse returned canonical glycans for **214,887** rows (**89.44%**). The remaining **25,380** failures have row-level stage, class, and reason evidence.\n\nAmong **104,619** accession-matched non-condensed rows, **104,527** were semantically comparable: **104,522** matched the independently normalized IUPAC-condensed reference and **5** differed; **92** failed in glyparse before comparison. Direct external evidence supports **2** glyparse outlier format-row(s), covering accession(s): G12345BK."
+        "body": "## Technical summary\n\nThe benchmark evaluated **240,267** source sequences across seven formats. glyparse returned canonical glycans for **214,887** rows (**89.44%**). The remaining **25,380** failures have row-level stage, class, and reason evidence.\n\nAmong **104,619** accession-matched non-condensed rows, **104,527** were semantically comparable: **104,522** matched the independently normalized IUPAC-condensed reference and **5** differed; **92** failed in glyparse before comparison. Direct external evidence supports **2** glyparse outlier format-row(s), covering accession(s): G12345BK.\n\nA separate sequence-level coverage ledger records whether each of the four tested tools parsed each exact source sequence. Direct failures, accession-fallback-only results, and untested formats remain distinct."
       },
       {
         "id": "headline_metrics",
@@ -334,7 +397,12 @@
       {
         "id": "scope",
         "type": "markdown",
-        "body": "## Scope and definitions\n\nIUPAC-condensed input is assessed only for parse coverage and performance, as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter 2.10.3, glycowork 1.9.0, and glypy 1.0.17.\n\nA semantic comparison requires both sides to normalize successfully through the current `parse_iupac_condensed()`. Accession references and GlycanFormatConverter use strict glyrepr canonical equality. Because glycowork and glypy do not encode the reducing-end anomer, their comparison keys remove the terminal reducing-end token from both normalized strings. This makes `Gal(b1-3)GalNAc(a1-` and `Gal(b1-3)GalNAc(?1-` equivalent while retaining internal anomers/linkages, residue identity, substituents, topology, reducing-end alditol state, floating components, and candidate-parent domains.\n\n## Methodology\n\nEach source sequence is parsed independently so one invalid or generic row cannot contaminate another row's result. Accession reference matching is exact. External converter availability, conversion success, current-model normalization, comparison contract, comparison key, and semantic agreement are separate fields. Direct cross-tool consensus uses reducing-end-neutral keys so missing root-anomer information cannot create a false outlier. Accessions converted through an accession-matched WURCS fallback are labeled as fallback and are never used to attribute a source-format error to glyparse.\n\nPerformance uses deterministic, evenly spaced samples of 1,000 successfully parsed concrete glycans, three vectorized repeats per parser. This isolates steady-state vector throughput from the scalar row-level diagnostic run."
+        "body": "## Scope and definitions\n\nIUPAC-condensed input is assessed with all four tools for parse coverage and with glyparse for performance, but is excluded from correctness adjudication as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter 2.10.3, glycowork 1.9.0, and glypy 1.0.17.\n\nA semantic comparison requires both sides to normalize successfully through the current `parse_iupac_condensed()`. Accession references and GlycanFormatConverter use strict glyrepr canonical equality. Because glycowork and glypy do not encode the reducing-end anomer, their comparison keys remove the terminal reducing-end token from both normalized strings. This makes `Gal(b1-3)GalNAc(a1-` and `Gal(b1-3)GalNAc(?1-` equivalent while retaining internal anomers/linkages, residue identity, substituents, topology, reducing-end alditol state, floating components, and candidate-parent domains."
+      },
+      {
+        "id": "methodology",
+        "type": "markdown",
+        "body": "## Methodology\n\nEach source sequence is parsed independently so one invalid or generic row cannot contaminate another row's result. Accession reference matching is exact. External converter availability, conversion success, current-model normalization, comparison contract, comparison key, and semantic agreement are separate fields. Direct cross-tool consensus uses reducing-end-neutral keys so missing root-anomer information cannot create a false outlier. Accessions converted through an accession-matched WURCS fallback are labeled as fallback and are never used to attribute a source-format error to glyparse.\n\nPerformance uses deterministic, evenly spaced samples of 1,000 successfully parsed concrete glycans, three vectorized repeats per parser. This isolates steady-state vector throughput from the scalar row-level diagnostic run."
       },
       {
         "id": "parse_coverage_block",
@@ -348,9 +416,20 @@
         "tableId": "format_detail"
       },
       {
+        "id": "sequence_coverage_findings",
+        "type": "markdown",
+        "body": "## Direct sequence coverage keeps fallback evidence separate\n\nThe row-level coverage report contains one record for every source sequence. `parsed` and `failed` are direct tests of that exact source string. `fallback_only` means the available conversion used an accession-matched WURCS sequence instead, and `not_tested` means the tool was not run for that source format. Boolean `can_parse` values are therefore populated only for direct tests. For glypy IUPAC-condensed input, the terminal open reducing-end token is removed before its simple-IUPAC parser is called, matching the agreed convention that glypy does not encode reducing-end anomers; the row retains this evidence scope.\n\n- **glyparse:** parsed 214,887 of 240,267 directly tested rows (89.44%); 0 fallback-only and 0 not tested.\n- **GlycanFormatConverter:** parsed 101,938 of 158,068 directly tested rows (64.49%); 82,199 fallback-only and 0 not tested.\n- **glypy:** parsed 165,658 of 208,848 directly tested rows (79.32%); 31,419 fallback-only and 0 not tested.\n- **glycowork:** parsed 222,440 of 240,267 directly tested rows (92.58%); 0 fallback-only and 0 not tested.",
+        "sourceId": "sequence_coverage_summary"
+      },
+      {
+        "id": "sequence_coverage_block",
+        "type": "table",
+        "tableId": "sequence_coverage"
+      },
+      {
         "id": "findings",
         "type": "markdown",
-        "body": "## Findings\n\nThe normalized accession reference agrees with glyparse for **99.995%** of comparable non-condensed rows. The 5 reference differences represent two accessions and concern anomeric-carbon specificity on mannose residues. Direct external conversion supports glyparse being the outlier for 2 format-row(s); the other reference differences remain unresolved or support the reference/source distinction described in the evidence table.\n\nGlycanFormatConverter direct coverage is format-dependent. It directly handles GlycoCT and WURCS in this run, but only 27 IUPAC-extended rows converted successfully; GLYCAM-IUPAC, GWB, and compact results from this tool use accession-matched WURCS fallback and are not direct source-parser evidence."
+        "body": "## Findings\n\nThe normalized accession reference agrees with glyparse for **99.995%** of comparable non-condensed rows. The 5 reference differences represent two accessions and concern anomeric-carbon specificity on mannose residues. Direct external conversion supports glyparse being the outlier for 2 format-row(s); the other reference differences remain unresolved or support the reference/source distinction described in the evidence table.\n\nGlycanFormatConverter direct coverage is format-dependent. It directly attempts GlycoCT, WURCS, IUPAC-extended, and IUPAC-condensed in this run; 19,483 of 19,621 IUPAC-condensed rows converted, while only 27 IUPAC-extended rows converted. GLYCAM-IUPAC, GWB, and compact results from this tool use accession-matched WURCS fallback and are not direct source-parser evidence."
       },
       {
         "id": "reference_review_block",
@@ -377,13 +456,18 @@
       {
         "id": "limitations",
         "type": "markdown",
-        "body": "## Limitations and robustness\n\nCanonical comparison is intentionally limited to chemistry representable by the current glyrepr model. An external output that cannot be normalized is reported as unavailable rather than as a semantic disagreement. Agreement between two direct converters without an accession reference is retained as an unresolved external-consensus difference, not attributed to glyparse, because shared information loss cannot be excluded. The reducing-end-neutral contract for glycowork and glypy ignores only the terminal root token; it does not forgive internal anomer/linkage, alditol, topology, residue, substituent, or floating-component differences. Raw string equality is never used.\n\nDetailed failure classifications reuse exact-row diagnostics only when accession and full source sequence match the prior diagnostic corpus; otherwise the current internal parser stage is replayed. Every final failure row retains the diagnostic source.\n\n## Recommended next steps\n\nReview the supported outlier accession(s) first, then the unresolved five-row reference ledger. For parser coverage, prioritize the largest glyrepr-restriction families separately from glyparse implementation limitations. Re-run the workflow after any parser or glyrepr semantic change; the source revisions and corpus hashes in the cache metadata make changes auditable."
+        "body": "## Limitations and robustness\n\nCanonical comparison is intentionally limited to chemistry representable by the current glyrepr model. An external output that cannot be normalized is reported as unavailable rather than as a semantic disagreement. Agreement between two direct converters without an accession reference is retained as an unresolved external-consensus difference, not attributed to glyparse, because shared information loss cannot be excluded. The reducing-end-neutral contract for glycowork and glypy ignores only the terminal root token; it does not forgive internal anomer/linkage, alditol, topology, residue, substituent, or floating-component differences. Raw string equality is never used.\n\nDetailed failure classifications reuse exact-row diagnostics only when accession and full source sequence match the prior diagnostic corpus; otherwise the current internal parser stage is replayed. Every final failure row retains the diagnostic source."
+      },
+      {
+        "id": "next_steps",
+        "type": "markdown",
+        "body": "## Recommended next steps\n\nReview the supported outlier accession(s) first, then the unresolved five-row reference ledger. For parser coverage, prioritize the largest glyrepr-restriction families separately from glyparse implementation limitations. Re-run the workflow after any parser or glyrepr semantic change; the source revisions and corpus hashes in the cache metadata make changes auditable."
       }
     ]
   },
   "snapshot": {
     "version": 1,
-    "generatedAt": "2026-08-15T10:56:23+0800",
+    "generatedAt": "2026-08-15T12:23:15+0800",
     "status": "ready",
     "datasets": {
       "headline": [
@@ -742,6 +826,63 @@
           "format_label": "IUPAC-compact"
         },
         {
+          "format": "iupac_condensed",
+          "tool": "GlycanFormatConverter",
+          "tool_version": "2.10.3",
+          "comparison_contract": "strict_canonical",
+          "rows": 19621,
+          "converted": 19483,
+          "conversion_failed": 138,
+          "normalized": 19465,
+          "normalization_failed": 18,
+          "comparable_with_glyparse": 0,
+          "equivalent_to_glyparse": 0,
+          "different_from_glyparse": 0,
+          "direct_rows": 19621,
+          "fallback_rows": 0,
+          "normalized_rate": 0.9920493348963,
+          "comparable_rate": 0,
+          "format_label": "IUPAC-condensed"
+        },
+        {
+          "format": "iupac_condensed",
+          "tool": "glycowork",
+          "tool_version": "1.9.0",
+          "comparison_contract": "ignore_terminal_reducing_end_token",
+          "rows": 19621,
+          "converted": 19621,
+          "conversion_failed": 0,
+          "normalized": 3,
+          "normalization_failed": 19618,
+          "comparable_with_glyparse": 0,
+          "equivalent_to_glyparse": 0,
+          "different_from_glyparse": 0,
+          "direct_rows": 19621,
+          "fallback_rows": 0,
+          "normalized_rate": 0.0001528974058407,
+          "comparable_rate": 0,
+          "format_label": "IUPAC-condensed"
+        },
+        {
+          "format": "iupac_condensed",
+          "tool": "glypy",
+          "tool_version": "1.0.17",
+          "comparison_contract": "ignore_terminal_reducing_end_token",
+          "rows": 19621,
+          "converted": 19557,
+          "conversion_failed": 64,
+          "normalized": 19365,
+          "normalization_failed": 192,
+          "comparable_with_glyparse": 0,
+          "equivalent_to_glyparse": 0,
+          "different_from_glyparse": 0,
+          "direct_rows": 19621,
+          "fallback_rows": 0,
+          "normalized_rate": 0.9869527547016,
+          "comparable_rate": 0,
+          "format_label": "IUPAC-condensed"
+        },
+        {
           "format": "iupac_extended",
           "tool": "GlycanFormatConverter",
           "tool_version": "2.10.3",
@@ -940,6 +1081,344 @@
           "min_rows_per_second": 90.909090909091,
           "max_rows_per_second": 95.812973076555,
           "format_label": "WURCS"
+        }
+      ],
+      "coverage_summary": [
+        {
+          "format": "glycam_iupac",
+          "format_label": "GLYCAM-IUPAC",
+          "tool": "glyparse",
+          "rows": 7226,
+          "directly_tested": 7226,
+          "parsed": 7226,
+          "failed": 0,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 1
+        },
+        {
+          "format": "glycam_iupac",
+          "format_label": "GLYCAM-IUPAC",
+          "tool": "GlycanFormatConverter",
+          "rows": 7226,
+          "directly_tested": 0,
+          "parsed": 0,
+          "failed": 0,
+          "fallback_only": 7226,
+          "not_tested": 0,
+          "direct_parse_rate": null
+        },
+        {
+          "format": "glycam_iupac",
+          "format_label": "GLYCAM-IUPAC",
+          "tool": "glypy",
+          "rows": 7226,
+          "directly_tested": 0,
+          "parsed": 0,
+          "failed": 0,
+          "fallback_only": 7226,
+          "not_tested": 0,
+          "direct_parse_rate": null
+        },
+        {
+          "format": "glycam_iupac",
+          "format_label": "GLYCAM-IUPAC",
+          "tool": "glycowork",
+          "rows": 7226,
+          "directly_tested": 7226,
+          "parsed": 7226,
+          "failed": 0,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 1
+        },
+        {
+          "format": "glycoct",
+          "format_label": "GlycoCT",
+          "tool": "glyparse",
+          "rows": 59181,
+          "directly_tested": 59181,
+          "parsed": 48172,
+          "failed": 11009,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.8139774589818
+        },
+        {
+          "format": "glycoct",
+          "format_label": "GlycoCT",
+          "tool": "GlycanFormatConverter",
+          "rows": 59181,
+          "directly_tested": 59181,
+          "parsed": 38806,
+          "failed": 20375,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.6557172065359
+        },
+        {
+          "format": "glycoct",
+          "format_label": "GlycoCT",
+          "tool": "glypy",
+          "rows": 59181,
+          "directly_tested": 59181,
+          "parsed": 50106,
+          "failed": 9075,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.846656866224
+        },
+        {
+          "format": "glycoct",
+          "format_label": "GlycoCT",
+          "tool": "glycowork",
+          "rows": 59181,
+          "directly_tested": 59181,
+          "parsed": 58965,
+          "failed": 216,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.9963501799564
+        },
+        {
+          "format": "gwb",
+          "format_label": "GlycoWorkbench",
+          "tool": "glyparse",
+          "rows": 50780,
+          "directly_tested": 50780,
+          "parsed": 48088,
+          "failed": 2692,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.946987002757
+        },
+        {
+          "format": "gwb",
+          "format_label": "GlycoWorkbench",
+          "tool": "GlycanFormatConverter",
+          "rows": 50780,
+          "directly_tested": 0,
+          "parsed": 0,
+          "failed": 0,
+          "fallback_only": 50780,
+          "not_tested": 0,
+          "direct_parse_rate": null
+        },
+        {
+          "format": "gwb",
+          "format_label": "GlycoWorkbench",
+          "tool": "glypy",
+          "rows": 50780,
+          "directly_tested": 50780,
+          "parsed": 24345,
+          "failed": 26435,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.4794210319023
+        },
+        {
+          "format": "gwb",
+          "format_label": "GlycoWorkbench",
+          "tool": "glycowork",
+          "rows": 50780,
+          "directly_tested": 50780,
+          "parsed": 43570,
+          "failed": 7210,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.8580149665223
+        },
+        {
+          "format": "iupac_compact",
+          "format_label": "IUPAC-compact",
+          "tool": "glyparse",
+          "rows": 24193,
+          "directly_tested": 24193,
+          "parsed": 24175,
+          "failed": 18,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.9992559831356
+        },
+        {
+          "format": "iupac_compact",
+          "format_label": "IUPAC-compact",
+          "tool": "GlycanFormatConverter",
+          "rows": 24193,
+          "directly_tested": 0,
+          "parsed": 0,
+          "failed": 0,
+          "fallback_only": 24193,
+          "not_tested": 0,
+          "direct_parse_rate": null
+        },
+        {
+          "format": "iupac_compact",
+          "format_label": "IUPAC-compact",
+          "tool": "glypy",
+          "rows": 24193,
+          "directly_tested": 0,
+          "parsed": 0,
+          "failed": 0,
+          "fallback_only": 24193,
+          "not_tested": 0,
+          "direct_parse_rate": null
+        },
+        {
+          "format": "iupac_compact",
+          "format_label": "IUPAC-compact",
+          "tool": "glycowork",
+          "rows": 24193,
+          "directly_tested": 24193,
+          "parsed": 23934,
+          "failed": 259,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.9892944240069
+        },
+        {
+          "format": "iupac_condensed",
+          "format_label": "IUPAC-condensed",
+          "tool": "glyparse",
+          "rows": 19621,
+          "directly_tested": 19621,
+          "parsed": 19603,
+          "failed": 18,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.999082615565
+        },
+        {
+          "format": "iupac_condensed",
+          "format_label": "IUPAC-condensed",
+          "tool": "GlycanFormatConverter",
+          "rows": 19621,
+          "directly_tested": 19621,
+          "parsed": 19483,
+          "failed": 138,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.9929667193313
+        },
+        {
+          "format": "iupac_condensed",
+          "format_label": "IUPAC-condensed",
+          "tool": "glypy",
+          "rows": 19621,
+          "directly_tested": 19621,
+          "parsed": 19557,
+          "failed": 64,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.9967381886754
+        },
+        {
+          "format": "iupac_condensed",
+          "format_label": "IUPAC-condensed",
+          "tool": "glycowork",
+          "rows": 19621,
+          "directly_tested": 19621,
+          "parsed": 19621,
+          "failed": 0,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 1
+        },
+        {
+          "format": "iupac_extended",
+          "format_label": "IUPAC-extended",
+          "tool": "glyparse",
+          "rows": 20082,
+          "directly_tested": 20082,
+          "parsed": 20064,
+          "failed": 18,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.9991036749328
+        },
+        {
+          "format": "iupac_extended",
+          "format_label": "IUPAC-extended",
+          "tool": "GlycanFormatConverter",
+          "rows": 20082,
+          "directly_tested": 20082,
+          "parsed": 27,
+          "failed": 20055,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.001344487600837
+        },
+        {
+          "format": "iupac_extended",
+          "format_label": "IUPAC-extended",
+          "tool": "glypy",
+          "rows": 20082,
+          "directly_tested": 20082,
+          "parsed": 20081,
+          "failed": 1,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.9999502041629
+        },
+        {
+          "format": "iupac_extended",
+          "format_label": "IUPAC-extended",
+          "tool": "glycowork",
+          "rows": 20082,
+          "directly_tested": 20082,
+          "parsed": 20082,
+          "failed": 0,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 1
+        },
+        {
+          "format": "wurcs",
+          "format_label": "WURCS",
+          "tool": "glyparse",
+          "rows": 59184,
+          "directly_tested": 59184,
+          "parsed": 47559,
+          "failed": 11625,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.8035786699108
+        },
+        {
+          "format": "wurcs",
+          "format_label": "WURCS",
+          "tool": "GlycanFormatConverter",
+          "rows": 59184,
+          "directly_tested": 59184,
+          "parsed": 43622,
+          "failed": 15562,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.7370573127872
+        },
+        {
+          "format": "wurcs",
+          "format_label": "WURCS",
+          "tool": "glypy",
+          "rows": 59184,
+          "directly_tested": 59184,
+          "parsed": 51569,
+          "failed": 7615,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.871333468505
+        },
+        {
+          "format": "wurcs",
+          "format_label": "WURCS",
+          "tool": "glycowork",
+          "rows": 59184,
+          "directly_tested": 59184,
+          "parsed": 49042,
+          "failed": 10142,
+          "fallback_only": 0,
+          "not_tested": 0,
+          "direct_parse_rate": 0.8286361178697
         }
       ],
       "reference_review": [
@@ -1280,6 +1759,17 @@
         "language": "SQL",
         "sql": "SELECT * FROM read_csv_auto('results/data/glyparse_validation/semantic_disagreements.csv.gz')",
         "description": "Read the complete normalized glyparse-versus-comparator disagreement ledger."
+      }
+    },
+    {
+      "id": "sequence_coverage_summary",
+      "label": "Sequence-level parser coverage summary",
+      "path": "results/data/glyparse_validation/sequence_coverage_summary.csv",
+      "query": {
+        "engine": "DuckDB",
+        "language": "SQL",
+        "sql": "SELECT * FROM read_csv_auto('results/data/glyparse_validation/sequence_coverage_summary.csv')",
+        "description": "Read direct parse, failure, fallback-only, and not-tested counts by tool and source format."
       }
     }
   ]

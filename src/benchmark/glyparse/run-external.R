@@ -49,7 +49,11 @@ run_python_tool <- function(tool, environment) {
 
 run_gfc <- function() {
   summary_path <- file.path(benchmark_cache_dir, "gfc-run-summary.csv")
-  if (file.exists(summary_path) && !force) {
+  expected_paths <- file.path(
+    benchmark_cache_dir,
+    paste0("gfc-", names(benchmark_definitions), ".csv.gz")
+  )
+  if (file.exists(summary_path) && all(file.exists(expected_paths)) && !force) {
     message("Reusing completed GlycanFormatConverter raw conversion cache")
     return(invisible(NULL))
   }
@@ -71,7 +75,7 @@ tool_prefixes <- c(
   glycowork = "glycowork",
   glypy = "glypy"
 )
-formats <- setdiff(names(benchmark_definitions), "iupac_condensed")
+formats <- names(benchmark_definitions)
 raw_paths <- unlist(
   lapply(tool_prefixes, function(prefix) {
     file.path(benchmark_cache_dir, paste0(prefix, "-", formats, ".csv.gz"))
