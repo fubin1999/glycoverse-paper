@@ -6,7 +6,7 @@
 "glycoct","GlycoCT","glyparse",59181,59181,50696,8485,0,0,0.856626282083777
 "glycoct","GlycoCT","GlycanFormatConverter",59181,59181,38806,20375,0,0,0.655717206535882
 "glycoct","GlycoCT","glypy",59181,59181,50106,9075,0,0,0.846656866223957
-"glycoct","GlycoCT","glycowork",59181,59181,58965,216,0,0,0.996350179956405
+"glycoct","GlycoCT","glycowork",59181,59181,58529,652,0,0,0.988982950609148
 "gwb","GlycoWorkbench","glyparse",50780,50780,49493,1287,0,0,0.974655376132336
 "gwb","GlycoWorkbench","GlycanFormatConverter",50780,0,0,0,50780,0,
 "gwb","GlycoWorkbench","glypy",50780,50780,24345,26435,0,0,0.479421031902324
@@ -14,7 +14,7 @@
 "iupac_compact","IUPAC-compact","glyparse",24193,24193,24193,0,0,0,1
 "iupac_compact","IUPAC-compact","GlycanFormatConverter",24193,0,0,0,24193,0,
 "iupac_compact","IUPAC-compact","glypy",24193,0,0,0,24193,0,
-"iupac_compact","IUPAC-compact","glycowork",24193,24193,23934,259,0,0,0.989294424006944
+"iupac_compact","IUPAC-compact","glycowork",24193,24193,23902,291,0,0,0.987971727359154
 "iupac_condensed","IUPAC-condensed","glyparse",19621,19621,19621,0,0,0,1
 "iupac_condensed","IUPAC-condensed","GlycanFormatConverter",19621,19621,19483,138,0,0,0.992966719331329
 "iupac_condensed","IUPAC-condensed","glypy",19621,19621,19557,64,0,0,0.996738188675399
@@ -26,4 +26,4 @@
 "wurcs","WURCS","glyparse",59184,59184,49009,10175,0,0,0.828078534739119
 "wurcs","WURCS","GlycanFormatConverter",59184,59184,43622,15562,0,0,0.73705731278724
 "wurcs","WURCS","glypy",59184,59184,51569,7615,0,0,0.871333468505001
-"wurcs","WURCS","glycowork",59184,59184,49042,10142,0,0,0.828636117869694
+"wurcs","WURCS","glycowork",59184,59184,57414,1770,0,0,0.970093268450933

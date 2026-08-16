@@ -4,6 +4,7 @@ import argparse
 import csv
 import gzip
 import importlib.metadata
+import json
 import multiprocessing
 import os
 import re
@@ -46,6 +47,25 @@ WORKER_TIMEOUT = None
 
 class ConversionTimeout(TimeoutError):
     pass
+
+
+def installed_tool_version(tool):
+    distribution = importlib.metadata.distribution(tool)
+    version = distribution.version
+    direct_url = distribution.read_text("direct_url.json")
+    if not direct_url:
+        return version
+    try:
+        provenance = json.loads(direct_url)
+    except json.JSONDecodeError:
+        return version
+    vcs = provenance.get("vcs_info", {})
+    commit = vcs.get("commit_id", "")
+    revision = vcs.get("requested_revision", "")
+    if not commit:
+        return version
+    revision_label = f"{revision}@" if revision else ""
+    return f"{version} (git {revision_label}{commit[:12]})"
 
 
 def timeout_handler(_signum, _frame):
@@ -240,7 +260,7 @@ def run_format(
     file_name, sequence_column = FORMATS[format_name]
     input_path = os.path.join(corpus_dir, file_name)
     output_path = os.path.join(output_dir, f"{tool}-{format_name}.csv.gz")
-    version = importlib.metadata.version(tool)
+    version = installed_tool_version(tool)
     fields = [
         "tool",
         "tool_version",

@@ -5,7 +5,7 @@
     "surface": "report",
     "title": "Semantic disagreement classification",
     "description": "Reason classification for normalized glyparse-versus-tool semantic mismatches.",
-    "generatedAt": "2026-08-16T12:12:36+0800",
+    "generatedAt": "2026-08-16T14:52:17+0800",
     "cards": [
       {
         "id": "comparisons",
@@ -90,7 +90,7 @@
       {
         "id": "primary_reasons",
         "title": "Primary mismatch reasons",
-        "subtitle": "Mutually exclusive partition of 119,026 normalized mismatches.",
+        "subtitle": "Mutually exclusive partition of 117,488 normalized mismatches.",
         "type": "bar",
         "dataset": "reason_summary",
         "sourceId": "reason_summary",
@@ -361,13 +361,13 @@
       {
         "id": "technical_summary",
         "type": "markdown",
-        "body": "## Technical summary\n\nThe benchmark contains **720,801** external-tool/source comparison opportunities. **447,989** produced normalized glycans on both sides and entered semantic comparison: **328,963** matched and **119,026** differed, a **26.6%** mismatch rate among comparable comparisons.",
+        "body": "## Technical summary\n\nThe benchmark contains **720,801** external-tool/source comparison opportunities. **446,974** produced normalized glycans on both sides and entered semantic comparison: **329,486** matched and **117,488** differed, a **26.3%** mismatch rate among comparable comparisons.",
         "sourceId": "external_summary"
       },
       {
         "id": "classification_summary",
         "type": "markdown",
-        "body": "The classified mismatch ledger covers **47,620** GlyTouCan accessions. Every mismatch row has one primary reason and one or more component flags; no row is unclassified.\n\nThe largest primary class is **Reducing-end alditol state** with **43,912** rows (**36.9%**). **70,373** rows (**59.1%**) carry more than one component flag, so the overlapping component totals intentionally exceed the ledger row count.",
+        "body": "The classified mismatch ledger covers **47,282** GlyTouCan accessions. Every mismatch row has one primary reason and one or more component flags; no row is unclassified.\n\nThe largest primary class is **Reducing-end alditol state** with **43,914** rows (**37.4%**). **68,645** rows (**58.4%**) carry more than one component flag, so the overlapping component totals intentionally exceed the ledger row count.",
         "sourceId": "disagreement_ledger"
       },
       {
@@ -383,7 +383,7 @@
       {
         "id": "primary_findings",
         "type": "markdown",
-        "body": "## Reducing-end and composition differences dominate\n\nThe ranked chart partitions all 119,026 rows into exactly one primary class. Reducing-end alditol, internal linkage/anomer, and residue/substituent composition together account for **77.9%** of mismatches. This concentrates manual review on information-loss and chemistry-normalization behavior before rarer topology cases.",
+        "body": "## Reducing-end and composition differences dominate\n\nThe ranked chart partitions all 117,488 rows into exactly one primary class. Reducing-end alditol, internal linkage/anomer, and residue/substituent composition together account for **78.5%** of mismatches. This concentrates manual review on information-loss and chemistry-normalization behavior before rarer topology cases.",
         "sourceId": "reason_summary"
       },
       {
@@ -400,7 +400,7 @@
       {
         "id": "tool_findings",
         "type": "markdown",
-        "body": "## The mismatch mix is tool-specific\n\nThe grouped chart uses the same primary partition for each comparator; its bars should be read as counts, not conversion coverage. Direct and accession-matched fallback counts remain separate in the exact table.\n\n- **GlycanFormatConverter:** Reducing-end anomer or linkage is the largest class at 7,845 rows (63.6% of this tool's mismatches).\n- **glycowork:** Reducing-end alditol state is the largest class at 40,308 rows (55.0% of this tool's mismatches).\n- **glypy:** Residue or substituent composition is the largest class at 17,636 rows (52.7% of this tool's mismatches).",
+        "body": "## The mismatch mix is tool-specific\n\nThe grouped chart uses the same primary partition for each comparator; its bars should be read as counts, not conversion coverage. Direct and accession-matched fallback counts remain separate in the exact table.\n\n- **GlycanFormatConverter:** Reducing-end anomer or linkage is the largest class at 7,845 rows (63.6% of this tool's mismatches).\n- **glycowork:** Reducing-end alditol state is the largest class at 40,310 rows (56.2% of this tool's mismatches).\n- **glypy:** Residue or substituent composition is the largest class at 17,636 rows (52.7% of this tool's mismatches).",
         "sourceId": "tool_reason_summary"
       },
       {
@@ -417,7 +417,7 @@
       {
         "id": "component_findings",
         "type": "markdown",
-        "body": "## Component flags preserve compound differences\n\nA row may differ in composition, linkage, alditol state, topology, and floating metadata simultaneously. The component table therefore uses overlapping incidence counts: **76,985** rows include the most common component, **Residue or substituent composition**. These counts diagnose what changed without forcing a single-cause interpretation.",
+        "body": "## Component flags preserve compound differences\n\nA row may differ in composition, linkage, alditol state, topology, and floating metadata simultaneously. The component table therefore uses overlapping incidence counts: **76,414** rows include the most common component, **Residue or substituent composition**. These counts diagnose what changed without forcing a single-cause interpretation.",
         "sourceId": "component_summary"
       },
       {
@@ -454,20 +454,20 @@
   },
   "snapshot": {
     "version": 1,
-    "generatedAt": "2026-08-16T12:12:36+0800",
+    "generatedAt": "2026-08-16T14:52:17+0800",
     "status": "ready",
     "datasets": {
       "headline": [
         {
           "total_comparison_opportunities": 720801,
-          "total_comparable_comparisons": 447989,
-          "total_equivalent_comparisons": 328963,
-          "total_mismatches": 119026,
-          "mismatch_rate": 0.2656895593419,
+          "total_comparable_comparisons": 446974,
+          "total_equivalent_comparisons": 329486,
+          "total_mismatches": 117488,
+          "mismatch_rate": 0.2628519779674,
           "primary_classes": 7,
-          "largest_primary_share": 0.368927797288,
-          "multi_component_share": 0.5912405692874,
-          "unique_accessions": 47620
+          "largest_primary_share": 0.3737743429116,
+          "multi_component_share": 0.5842724363339,
+          "unique_accessions": 47282
         }
       ],
       "reason_summary": [
@@ -476,9 +476,9 @@
           "mismatch_reason": "Reducing-end alditol state",
           "definition": "The two glycans disagree on whether the reducing residue is an alditol.",
           "priority": 1,
-          "rows": 43912,
-          "share": 0.368927797288,
-          "unique_accessions": 43536,
+          "rows": 43914,
+          "share": 0.3737743429116,
+          "unique_accessions": 43538,
           "formats": 3,
           "comparators": 3
         },
@@ -487,9 +487,9 @@
           "mismatch_reason": "Floating component or candidate-parent domain",
           "definition": "Floating components, floating substituents, or their candidate-parent domains differ.",
           "priority": 2,
-          "rows": 17190,
-          "share": 0.1444222270764,
-          "unique_accessions": 5935,
+          "rows": 16157,
+          "share": 0.1375204276181,
+          "unique_accessions": 5933,
           "formats": 3,
           "comparators": 3
         },
@@ -499,7 +499,7 @@
           "definition": "The strict comparison disagrees at the reducing-end anomer or linkage token.",
           "priority": 3,
           "rows": 7845,
-          "share": 0.06590996925042,
+          "share": 0.06677277679423,
           "unique_accessions": 7840,
           "formats": 3,
           "comparators": 1
@@ -509,9 +509,9 @@
           "mismatch_reason": "Residue or substituent composition",
           "definition": "Residue identities or residue-bound substituent composition differ.",
           "priority": 4,
-          "rows": 23197,
-          "share": 0.1948901920589,
-          "unique_accessions": 8635,
+          "rows": 22644,
+          "share": 0.1927345771483,
+          "unique_accessions": 8047,
           "formats": 6,
           "comparators": 3
         },
@@ -520,9 +520,9 @@
           "mismatch_reason": "Topology or residue attachment",
           "definition": "The canonical graph topology or residue-to-residue attachment pattern differs.",
           "priority": 5,
-          "rows": 1030,
-          "share": 0.008653571488582,
-          "unique_accessions": 718,
+          "rows": 1039,
+          "share": 0.008843456352989,
+          "unique_accessions": 727,
           "formats": 4,
           "comparators": 2
         },
@@ -531,9 +531,9 @@
           "mismatch_reason": "Internal linkage or anomer inventory",
           "definition": "Internal linkage positions or anomer assignments differ as a multiset.",
           "priority": 6,
-          "rows": 25670,
-          "share": 0.2156671651572,
-          "unique_accessions": 10662,
+          "rows": 25705,
+          "share": 0.218788301784,
+          "unique_accessions": 10680,
           "formats": 5,
           "comparators": 3
         },
@@ -542,9 +542,9 @@
           "mismatch_reason": "Label assignment on the same branch shape",
           "definition": "Composition, linkage inventory, and branch shape match, but labels are assigned to non-isomorphic nodes or edges.",
           "priority": 7,
-          "rows": 182,
-          "share": 0.001529077680507,
-          "unique_accessions": 182,
+          "rows": 184,
+          "share": 0.001566117390712,
+          "unique_accessions": 184,
           "formats": 1,
           "comparators": 1
         }
@@ -604,60 +604,60 @@
           "comparator": "glycowork",
           "primary_mismatch_class": "reducing_end_alditol",
           "primary_mismatch_reason": "Reducing-end alditol state",
-          "rows": 40308,
-          "tool_mismatches": 73228,
-          "share_within_tool": 0.550445184902,
-          "direct_rows": 40308,
+          "rows": 40310,
+          "tool_mismatches": 71690,
+          "share_within_tool": 0.5622820477054,
+          "direct_rows": 40310,
           "fallback_rows": 0
         },
         {
           "comparator": "glycowork",
           "primary_mismatch_class": "linkage_or_anomer",
           "primary_mismatch_reason": "Internal linkage or anomer inventory",
-          "rows": 21524,
-          "tool_mismatches": 73228,
-          "share_within_tool": 0.2939312831157,
-          "direct_rows": 21524,
+          "rows": 21559,
+          "tool_mismatches": 71690,
+          "share_within_tool": 0.3007253452364,
+          "direct_rows": 21559,
           "fallback_rows": 0
         },
         {
           "comparator": "glycowork",
           "primary_mismatch_class": "floating_structure_or_domain",
           "primary_mismatch_reason": "Floating component or candidate-parent domain",
-          "rows": 9464,
-          "tool_mismatches": 73228,
-          "share_within_tool": 0.1292401813514,
-          "direct_rows": 9464,
-          "fallback_rows": 0
-        },
-        {
-          "comparator": "glycowork",
-          "primary_mismatch_class": "residue_composition",
-          "primary_mismatch_reason": "Residue or substituent composition",
-          "rows": 1116,
-          "tool_mismatches": 73228,
-          "share_within_tool": 0.01524007210357,
-          "direct_rows": 1116,
+          "rows": 8431,
+          "tool_mismatches": 71690,
+          "share_within_tool": 0.1176035709304,
+          "direct_rows": 8431,
           "fallback_rows": 0
         },
         {
           "comparator": "glycowork",
           "primary_mismatch_class": "topology_or_attachment",
           "primary_mismatch_reason": "Topology or residue attachment",
-          "rows": 634,
-          "tool_mismatches": 73228,
-          "share_within_tool": 0.008657890424428,
-          "direct_rows": 634,
+          "rows": 643,
+          "tool_mismatches": 71690,
+          "share_within_tool": 0.008969172827452,
+          "direct_rows": 643,
+          "fallback_rows": 0
+        },
+        {
+          "comparator": "glycowork",
+          "primary_mismatch_class": "residue_composition",
+          "primary_mismatch_reason": "Residue or substituent composition",
+          "rows": 563,
+          "tool_mismatches": 71690,
+          "share_within_tool": 0.007853257079091,
+          "direct_rows": 563,
           "fallback_rows": 0
         },
         {
           "comparator": "glycowork",
           "primary_mismatch_class": "label_assignment_on_same_shape",
           "primary_mismatch_reason": "Label assignment on the same branch shape",
-          "rows": 182,
-          "tool_mismatches": 73228,
-          "share_within_tool": 0.002485388102911,
-          "direct_rows": 182,
+          "rows": 184,
+          "tool_mismatches": 71690,
+          "share_within_tool": 0.00256660622123,
+          "direct_rows": 184,
           "fallback_rows": 0
         },
         {
@@ -717,40 +717,40 @@
           "mismatch_reason": "Residue or substituent composition",
           "definition": "Residue identities or residue-bound substituent composition differ.",
           "priority": 4,
-          "rows": 76985,
-          "share": 0.6467914573287
+          "rows": 76414,
+          "share": 0.6503983385537
         },
         {
           "mismatch_class": "linkage_or_anomer",
           "mismatch_reason": "Internal linkage or anomer inventory",
           "definition": "Internal linkage positions or anomer assignments differ as a multiset.",
           "priority": 6,
-          "rows": 61769,
-          "share": 0.5189538420177
+          "rows": 60064,
+          "share": 0.5112351899768
         },
         {
           "mismatch_class": "reducing_end_alditol",
           "mismatch_reason": "Reducing-end alditol state",
           "definition": "The two glycans disagree on whether the reducing residue is an alditol.",
           "priority": 1,
-          "rows": 43912,
-          "share": 0.368927797288
+          "rows": 43914,
+          "share": 0.3737743429116
         },
         {
           "mismatch_class": "floating_structure_or_domain",
           "mismatch_reason": "Floating component or candidate-parent domain",
           "definition": "Floating components, floating substituents, or their candidate-parent domains differ.",
           "priority": 2,
-          "rows": 21479,
-          "share": 0.180456370877
+          "rows": 20446,
+          "share": 0.1740262835353
         },
         {
           "mismatch_class": "topology_or_attachment",
           "mismatch_reason": "Topology or residue attachment",
           "definition": "The canonical graph topology or residue-to-residue attachment pattern differs.",
           "priority": 5,
-          "rows": 10920,
-          "share": 0.09174466083041
+          "rows": 10911,
+          "share": 0.09286905896772
         },
         {
           "mismatch_class": "reducing_end_anomer",
@@ -758,23 +758,23 @@
           "definition": "The strict comparison disagrees at the reducing-end anomer or linkage token.",
           "priority": 3,
           "rows": 7848,
-          "share": 0.06593517382757
+          "share": 0.0667983113169
         },
         {
           "mismatch_class": "label_assignment_on_same_shape",
           "mismatch_reason": "Label assignment on the same branch shape",
           "definition": "Composition, linkage inventory, and branch shape match, but labels are assigned to non-isomorphic nodes or edges.",
           "priority": 7,
-          "rows": 182,
-          "share": 0.001529077680507
+          "rows": 184,
+          "share": 0.001566117390712
         }
       ],
       "tool_overall": [
         {
           "comparator": "glycowork",
-          "comparable_with_glyparse": 156802,
-          "different_from_glyparse": 73228,
-          "mismatch_rate": 0.4670093493705
+          "comparable_with_glyparse": 155787,
+          "different_from_glyparse": 71690,
+          "mismatch_rate": 0.4601796042032
         },
         {
           "comparator": "glypy",

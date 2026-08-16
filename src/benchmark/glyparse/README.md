@@ -98,7 +98,9 @@ current internal parser stage is replayed instead.
 
 Python converter caches are reused only when every cached row records the same
 installed tool version as the active conda environment. A glycowork or glypy
-upgrade therefore forces fresh raw conversion before normalization.
+upgrade therefore forces fresh raw conversion before normalization. For a
+package installed from a version-control URL, the recorded version also
+includes the requested revision and abbreviated commit hash.
 
 To package the portable report after running the `report` stage, use the
 Data Analytics report builder:

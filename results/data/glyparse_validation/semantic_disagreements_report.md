@@ -2,11 +2,11 @@
 
 ## Technical summary
 
-The benchmark contains **720,801** external-tool/source comparison opportunities. **447,989** produced normalized glycans on both sides and entered semantic comparison: **328,963** matched and **119,026** differed, a **26.6%** mismatch rate among comparable comparisons.
+The benchmark contains **720,801** external-tool/source comparison opportunities. **446,974** produced normalized glycans on both sides and entered semantic comparison: **329,486** matched and **117,488** differed, a **26.3%** mismatch rate among comparable comparisons.
 
-The classified mismatch ledger covers **47,620** GlyTouCan accessions. Every mismatch row has one primary reason and one or more component flags; no row is unclassified.
+The classified mismatch ledger covers **47,282** GlyTouCan accessions. Every mismatch row has one primary reason and one or more component flags; no row is unclassified.
 
-The largest primary class is **Reducing-end alditol state** with **43,912** rows (**36.9%**). **70,373** rows (**59.1%**) carry more than one component flag, so the overlapping component totals intentionally exceed the ledger row count.
+The largest primary class is **Reducing-end alditol state** with **43,914** rows (**37.4%**). **68,645** rows (**58.4%**) carry more than one component flag, so the overlapping component totals intentionally exceed the ledger row count.
 
 ## Classification contract
 
@@ -16,19 +16,19 @@ The classes describe how the two normalized glycan graphs differ. They do not by
 
 ## Reducing-end and composition differences dominate
 
-The ranked chart partitions all 119,026 rows into exactly one primary class. Reducing-end alditol, internal linkage/anomer, and residue/substituent composition together account for **77.9%** of mismatches. This concentrates manual review on information-loss and chemistry-normalization behavior before rarer topology cases.
+The ranked chart partitions all 117,488 rows into exactly one primary class. Reducing-end alditol, internal linkage/anomer, and residue/substituent composition together account for **78.5%** of mismatches. This concentrates manual review on information-loss and chemistry-normalization behavior before rarer topology cases.
 
 ## The mismatch mix is tool-specific
 
 The grouped chart uses the same primary partition for each comparator; its bars should be read as counts, not conversion coverage. Direct and accession-matched fallback counts remain separate in the exact table.
 
 - **GlycanFormatConverter:** Reducing-end anomer or linkage is the largest class at 7,845 rows (63.6% of this tool's mismatches).
-- **glycowork:** Reducing-end alditol state is the largest class at 40,308 rows (55.0% of this tool's mismatches).
+- **glycowork:** Reducing-end alditol state is the largest class at 40,310 rows (56.2% of this tool's mismatches).
 - **glypy:** Residue or substituent composition is the largest class at 17,636 rows (52.7% of this tool's mismatches).
 
 ## Component flags preserve compound differences
 
-A row may differ in composition, linkage, alditol state, topology, and floating metadata simultaneously. The component table therefore uses overlapping incidence counts: **76,985** rows include the most common component, **Residue or substituent composition**. These counts diagnose what changed without forcing a single-cause interpretation.
+A row may differ in composition, linkage, alditol state, topology, and floating metadata simultaneously. The component table therefore uses overlapping incidence counts: **76,414** rows include the most common component, **Residue or substituent composition**. These counts diagnose what changed without forcing a single-cause interpretation.
 
 ## Representative rows make each class auditable
 
