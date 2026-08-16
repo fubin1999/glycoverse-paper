@@ -2,7 +2,9 @@
 
 ## Technical summary
 
-The classified ledger contains **119,026** normalized glyparse-versus-tool mismatches across **47,620** GlyTouCan accessions. Every row has one primary reason and one or more component flags; no row is unclassified.
+The benchmark contains **720,801** external-tool/source comparison opportunities. **447,989** produced normalized glycans on both sides and entered semantic comparison: **328,963** matched and **119,026** differed, a **26.6%** mismatch rate among comparable comparisons.
+
+The classified mismatch ledger covers **47,620** GlyTouCan accessions. Every mismatch row has one primary reason and one or more component flags; no row is unclassified.
 
 The largest primary class is **Reducing-end alditol state** with **43,912** rows (**36.9%**). **70,373** rows (**59.1%**) carry more than one component flag, so the overlapping component totals intentionally exceed the ledger row count.
 

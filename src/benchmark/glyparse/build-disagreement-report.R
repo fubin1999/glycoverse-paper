@@ -25,6 +25,20 @@ stopifnot(
 
 definitions <- benchmark_mismatch_class_definitions
 total_mismatches <- nrow(disagreements)
+total_comparison_opportunities <- sum(external_summary$rows)
+total_comparable_comparisons <- sum(
+  external_summary$comparable_with_glyparse
+)
+total_equivalent_comparisons <- sum(
+  external_summary$equivalent_to_glyparse
+)
+external_mismatches <- sum(external_summary$different_from_glyparse)
+stopifnot(
+  total_mismatches == external_mismatches,
+  total_comparable_comparisons ==
+    total_equivalent_comparisons + total_mismatches
+)
+mismatch_rate <- total_mismatches / total_comparable_comparisons
 
 primary_counts <- table(disagreements$primary_mismatch_class)
 reason_summary <- definitions
@@ -192,7 +206,11 @@ multi_component_rows <- sum(disagreements$mismatch_class_count > 1L)
 largest <- reason_summary[which.max(reason_summary$rows), ]
 unique_accessions <- length(unique(disagreements$glytoucan_ac))
 headline <- data.frame(
+  total_comparison_opportunities = total_comparison_opportunities,
+  total_comparable_comparisons = total_comparable_comparisons,
+  total_equivalent_comparisons = total_equivalent_comparisons,
   total_mismatches = total_mismatches,
+  mismatch_rate = mismatch_rate,
   primary_classes = nrow(reason_summary),
   largest_primary_share = largest$share,
   multi_component_share = multi_component_rows / total_mismatches,
@@ -271,35 +289,49 @@ tool_lines <- vapply(
 )
 
 generated_at <- format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z")
-technical_summary_body <- paste(
+comparison_summary_body <- paste(
   c(
     "## Technical summary",
     "",
     paste0(
-      "The classified ledger contains **",
+      "The benchmark contains **",
+      format_integer(total_comparison_opportunities),
+      "** external-tool/source comparison opportunities. **",
+      format_integer(total_comparable_comparisons),
+      "** produced normalized glycans on both sides and entered semantic ",
+      "comparison: **",
+      format_integer(total_equivalent_comparisons),
+      "** matched and **",
       format_integer(total_mismatches),
-      "** normalized glyparse-versus-tool mismatches across **",
-      format_integer(unique_accessions),
-      "** GlyTouCan accessions. Every row has one primary reason and one or ",
-      "more component flags; no row is unclassified."
-    ),
-    "",
-    paste0(
-      "The largest primary class is **",
-      largest$mismatch_reason,
-      "** with **",
-      format_integer(largest$rows),
-      "** rows (**",
-      sprintf("%.1f%%", 100 * largest$share),
-      "**). **",
-      format_integer(multi_component_rows),
-      "** rows (**",
-      sprintf("%.1f%%", 100 * multi_component_rows / total_mismatches),
-      "**) carry more than one component flag, so the overlapping component ",
-      "totals intentionally exceed the ledger row count."
+      "** differed, a **",
+      sprintf("%.1f%%", 100 * mismatch_rate),
+      "** mismatch rate among comparable comparisons."
     )
   ),
   collapse = "\n"
+)
+classification_summary_body <- paste0(
+  "The classified mismatch ledger covers **",
+  format_integer(unique_accessions),
+  "** GlyTouCan accessions. Every mismatch row has one primary reason and ",
+  "one or more component flags; no row is unclassified.\n\n",
+  "The largest primary class is **",
+  largest$mismatch_reason,
+  "** with **",
+  format_integer(largest$rows),
+  "** rows (**",
+  sprintf("%.1f%%", 100 * largest$share),
+  "**). **",
+  format_integer(multi_component_rows),
+  "** rows (**",
+  sprintf("%.1f%%", 100 * multi_component_rows / total_mismatches),
+  "**) carry more than one component flag, so the overlapping component ",
+  "totals intentionally exceed the ledger row count."
+)
+technical_summary_body <- paste(
+  comparison_summary_body,
+  classification_summary_body,
+  sep = "\n\n"
 )
 definition_body <- paste(
   c(
@@ -535,6 +567,20 @@ artifact <- list(
     generatedAt = generated_at,
     cards = list(
       list(
+        id = "comparisons",
+        description = paste0(
+          "Normalized glyparse and external-tool outputs that entered ",
+          "semantic comparison."
+        ),
+        dataset = "headline",
+        sourceId = "external_summary",
+        metrics = list(list(
+          label = "Comparable comparisons",
+          field = "total_comparable_comparisons",
+          format = "number"
+        ))
+      ),
+      list(
         id = "mismatches",
         description = "All normalized glyparse-versus-tool differences.",
         dataset = "headline",
@@ -543,6 +589,20 @@ artifact <- list(
           label = "Classified mismatches",
           field = "total_mismatches",
           format = "number"
+        ))
+      ),
+      list(
+        id = "mismatch_rate",
+        description = paste0(
+          "Classified mismatches divided by normalized comparable ",
+          "comparisons."
+        ),
+        dataset = "headline",
+        sourceId = "external_summary",
+        metrics = list(list(
+          label = "Mismatch rate",
+          field = "mismatch_rate",
+          format = "percent"
         ))
       ),
       list(
@@ -736,13 +796,26 @@ artifact <- list(
       list(
         id = "technical_summary",
         type = "markdown",
-        body = technical_summary_body,
+        body = comparison_summary_body,
+        sourceId = "external_summary"
+      ),
+      list(
+        id = "classification_summary",
+        type = "markdown",
+        body = classification_summary_body,
         sourceId = "disagreement_ledger"
       ),
       list(
         id = "headline_metrics",
         type = "metric-strip",
-        cardIds = c("mismatches", "classes", "largest", "compound")
+        cardIds = c(
+          "comparisons",
+          "mismatches",
+          "mismatch_rate",
+          "classes",
+          "largest",
+          "compound"
+        )
       ),
       list(
         id = "classification_contract",
@@ -886,6 +959,9 @@ writeLines(
 )
 
 stopifnot(
+  total_comparison_opportunities >= total_comparable_comparisons,
+  total_comparable_comparisons ==
+    total_equivalent_comparisons + total_mismatches,
   sum(reason_summary$rows) == total_mismatches,
   all(reason_summary$rows > 0L),
   all(

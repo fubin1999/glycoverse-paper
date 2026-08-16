@@ -5,8 +5,21 @@
     "surface": "report",
     "title": "Semantic disagreement classification",
     "description": "Reason classification for normalized glyparse-versus-tool semantic mismatches.",
-    "generatedAt": "2026-08-15T23:23:04+0800",
+    "generatedAt": "2026-08-16T12:12:36+0800",
     "cards": [
+      {
+        "id": "comparisons",
+        "description": "Normalized glyparse and external-tool outputs that entered semantic comparison.",
+        "dataset": "headline",
+        "sourceId": "external_summary",
+        "metrics": [
+          {
+            "label": "Comparable comparisons",
+            "field": "total_comparable_comparisons",
+            "format": "number"
+          }
+        ]
+      },
       {
         "id": "mismatches",
         "description": "All normalized glyparse-versus-tool differences.",
@@ -17,6 +30,19 @@
             "label": "Classified mismatches",
             "field": "total_mismatches",
             "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "mismatch_rate",
+        "description": "Classified mismatches divided by normalized comparable comparisons.",
+        "dataset": "headline",
+        "sourceId": "external_summary",
+        "metrics": [
+          {
+            "label": "Mismatch rate",
+            "field": "mismatch_rate",
+            "format": "percent"
           }
         ]
       },
@@ -335,13 +361,19 @@
       {
         "id": "technical_summary",
         "type": "markdown",
-        "body": "## Technical summary\n\nThe classified ledger contains **119,026** normalized glyparse-versus-tool mismatches across **47,620** GlyTouCan accessions. Every row has one primary reason and one or more component flags; no row is unclassified.\n\nThe largest primary class is **Reducing-end alditol state** with **43,912** rows (**36.9%**). **70,373** rows (**59.1%**) carry more than one component flag, so the overlapping component totals intentionally exceed the ledger row count.",
+        "body": "## Technical summary\n\nThe benchmark contains **720,801** external-tool/source comparison opportunities. **447,989** produced normalized glycans on both sides and entered semantic comparison: **328,963** matched and **119,026** differed, a **26.6%** mismatch rate among comparable comparisons.",
+        "sourceId": "external_summary"
+      },
+      {
+        "id": "classification_summary",
+        "type": "markdown",
+        "body": "The classified mismatch ledger covers **47,620** GlyTouCan accessions. Every mismatch row has one primary reason and one or more component flags; no row is unclassified.\n\nThe largest primary class is **Reducing-end alditol state** with **43,912** rows (**36.9%**). **70,373** rows (**59.1%**) carry more than one component flag, so the overlapping component totals intentionally exceed the ledger row count.",
         "sourceId": "disagreement_ledger"
       },
       {
         "id": "headline_metrics",
         "type": "metric-strip",
-        "cardIds": ["mismatches", "classes", "largest", "compound"]
+        "cardIds": ["comparisons", "mismatches", "mismatch_rate", "classes", "largest", "compound"]
       },
       {
         "id": "classification_contract",
@@ -422,12 +454,16 @@
   },
   "snapshot": {
     "version": 1,
-    "generatedAt": "2026-08-15T23:23:04+0800",
+    "generatedAt": "2026-08-16T12:12:36+0800",
     "status": "ready",
     "datasets": {
       "headline": [
         {
+          "total_comparison_opportunities": 720801,
+          "total_comparable_comparisons": 447989,
+          "total_equivalent_comparisons": 328963,
           "total_mismatches": 119026,
+          "mismatch_rate": 0.2656895593419,
           "primary_classes": 7,
           "largest_primary_share": 0.368927797288,
           "multi_component_share": 0.5912405692874,
