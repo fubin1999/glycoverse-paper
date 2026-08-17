@@ -130,7 +130,6 @@
   ""a?|b?|c?|d?|e?}*OP^XOCCN/3O/3=O""",6
 "wurcs","glyrepr_restriction","source_parse","Floating WURCS substituents are not supported:
   ""a?|b?|c?|d?|e?|f?|g?|h?}*OPO/3O/3=O""",6
-"wurcs","glyrepr_restriction","source_parse","The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a12d1m-1a_1-5.",6
 "wurcs","glyrepr_restriction","source_parse","The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a21d2h-1b_1-5.",6
 "wurcs","glyrepr_restriction","source_parse","The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a21EEA-1a_1-5_2|3*OSO/3=O/3=O.",6
 "wurcs","glyrepr_restriction","source_parse","The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a21EEA-1a_1-5_3*OSO/3=O/3=O.",6
@@ -168,7 +167,6 @@
 "wurcs","glyrepr_restriction","source_parse","Floating WURCS substituents are not supported:
   ""a?|b?|c?|d?|e?|f?|g?|h?|i?|j?|k?|l?|m?}*OPO/3O/3=O""",4
 "wurcs","glyrepr_restriction","source_parse","Floating WURCS substituents are not supported: ""a?|b?|c?}*OC""",4
-"wurcs","glyrepr_restriction","source_parse","The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a12d1m-1x_1-5.",4
 "wurcs","glyrepr_restriction","source_parse","The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a21d2h-1b_1-?.",4
 "wurcs","glyrepr_restriction","source_parse","The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a21d2h-1x_1-?.",4
 "wurcs","glyrepr_restriction","source_parse","The WURCS sequence contains monosaccharide residue descriptor(s) that current glyrepr cannot represent losslessly: a21d2h-1x_1-5.",4

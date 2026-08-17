@@ -1,22 +1,22 @@
 "format","tool","tool_version","comparison_contract","rows","converted","conversion_failed","normalized","normalization_failed","comparable_with_glyparse","equivalent_to_glyparse","different_from_glyparse","direct_rows","fallback_rows"
 "glycam_iupac","GlycanFormatConverter","2.10.3","strict_graph_isomorphism",7226,7226,0,7226,0,7226,7226,0,0,7226
-"glycam_iupac","glycowork","1.10.0 (git dev@d132d2fda005)","graph_isomorphism_ignore_terminal_reducing_end_token",7226,7226,0,7224,2,7224,7224,0,7226,0
+"glycam_iupac","glycowork","1.10.0 (git dev@d7f31a5d9607)","graph_isomorphism_ignore_terminal_reducing_end_token",7226,7226,0,7224,2,7224,7224,0,7226,0
 "glycam_iupac","glypy","1.0.17","graph_isomorphism_ignore_terminal_reducing_end_token",7226,7226,0,6892,334,6892,6675,217,0,7226
-"glycoct","GlycanFormatConverter","2.10.3","strict_graph_isomorphism",59181,38806,20375,33738,5068,33716,25824,7892,59181,0
-"glycoct","glycowork","1.10.0 (git dev@d132d2fda005)","graph_isomorphism_ignore_terminal_reducing_end_token",59181,58529,652,46510,12019,42658,28609,14049,59181,0
+"glycoct","GlycanFormatConverter","2.10.3","strict_graph_isomorphism",59181,38806,20375,33738,5068,33716,25830,7886,59181,0
+"glycoct","glycowork","1.10.0 (git dev@d7f31a5d9607)","graph_isomorphism_ignore_terminal_reducing_end_token",59181,58989,192,50629,8360,46681,32054,14627,59181,0
 "glycoct","glypy","1.0.17","graph_isomorphism_ignore_terminal_reducing_end_token",59181,50106,9075,41604,8502,41489,29166,12323,59181,0
 "gwb","GlycanFormatConverter","2.10.3","strict_graph_isomorphism",50780,43548,7232,39650,3898,39638,37425,2213,0,50780
-"gwb","glycowork","1.10.0 (git dev@d132d2fda005)","graph_isomorphism_ignore_terminal_reducing_end_token",50780,43570,7210,39916,3654,39914,0,39914,50780,0
+"gwb","glycowork","1.10.0 (git dev@d7f31a5d9607)","graph_isomorphism_ignore_terminal_reducing_end_token",50780,47921,2859,43973,3948,43971,29490,14481,50780,0
 "gwb","glypy","1.0.17","graph_isomorphism_ignore_terminal_reducing_end_token",50780,24345,26435,24143,202,24143,16281,7862,50780,0
 "iupac_compact","GlycanFormatConverter","2.10.3","strict_graph_isomorphism",24193,24187,6,24056,131,24056,24055,1,0,24193
-"iupac_compact","glycowork","1.10.0 (git dev@d132d2fda005)","graph_isomorphism_ignore_terminal_reducing_end_token",24193,23902,291,19202,4700,19202,15159,4043,24193,0
+"iupac_compact","glycowork","1.10.0 (git dev@d7f31a5d9607)","graph_isomorphism_ignore_terminal_reducing_end_token",24193,23902,291,19202,4700,19202,15160,4042,24193,0
 "iupac_compact","glypy","1.0.17","graph_isomorphism_ignore_terminal_reducing_end_token",24193,24193,0,19247,4946,19247,16346,2901,0,24193
 "iupac_condensed","GlycanFormatConverter","2.10.3","strict_graph_isomorphism",19621,19483,138,19483,0,0,0,0,19621,0
-"iupac_condensed","glycowork","1.10.0 (git dev@d132d2fda005)","graph_isomorphism_ignore_terminal_reducing_end_token",19621,19621,0,21,19600,0,0,0,19621,0
+"iupac_condensed","glycowork","1.10.0 (git dev@d7f31a5d9607)","graph_isomorphism_ignore_terminal_reducing_end_token",19621,19621,0,21,19600,0,0,0,19621,0
 "iupac_condensed","glypy","1.0.17","graph_isomorphism_ignore_terminal_reducing_end_token",19621,19557,64,19383,174,0,0,0,19621,0
 "iupac_extended","GlycanFormatConverter","2.10.3","strict_graph_isomorphism",20082,27,20055,27,0,27,15,12,20082,0
-"iupac_extended","glycowork","1.10.0 (git dev@d132d2fda005)","graph_isomorphism_ignore_terminal_reducing_end_token",20082,20082,0,0,20082,0,0,0,20082,0
+"iupac_extended","glycowork","1.10.0 (git dev@d7f31a5d9607)","graph_isomorphism_ignore_terminal_reducing_end_token",20082,20082,0,0,20082,0,0,0,20082,0
 "iupac_extended","glypy","1.0.17","graph_isomorphism_ignore_terminal_reducing_end_token",20082,20081,1,19861,220,19861,16120,3741,20082,0
 "wurcs","GlycanFormatConverter","2.10.3","strict_graph_isomorphism",59184,43622,15562,39650,3972,39638,37424,2214,59184,0
-"wurcs","glycowork","1.10.0 (git dev@d132d2fda005)","graph_isomorphism_ignore_terminal_reducing_end_token",59184,57414,1770,52660,4754,46789,33105,13684,59184,0
+"wurcs","glycowork","1.10.0 (git dev@d7f31a5d9607)","graph_isomorphism_ignore_terminal_reducing_end_token",59184,57505,1679,52675,4830,46804,33199,13605,59184,0
 "wurcs","glypy","1.0.17","graph_isomorphism_ignore_terminal_reducing_end_token",59184,51569,7615,40413,11156,35254,28832,6422,59184,0

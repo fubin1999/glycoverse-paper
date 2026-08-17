@@ -1,10 +1,10 @@
 {
-  "report_generated_at": "2026-08-16T15:04:43+0800",
+  "report_generated_at": "2026-08-18T01:26:21+0800",
   "glyparse_run": {
-    "generated_at": "2026-08-15T18:08:19+0800",
+    "generated_at": "2026-08-18T00:42:23+0800",
     "r_version": "R version 4.6.1 (2026-06-24)",
     "glyparse_version": "0.7.1.9000",
-    "glyparse_revision": "6b4448c6adbfb2d77bb5f0a3f354dc92120bd7d8",
+    "glyparse_revision": "7b46f4f7aac8202e7d029df589ffa240f7c5a03a",
     "glyrepr_version": "0.14.0.9000",
     "glyrepr_revision": "2181073145eac1718c124cbec901dbf16526d2f1",
     "corpus": {
@@ -51,7 +51,7 @@
       "formats": ["glycam_iupac", "glycoct", "gwb", "iupac_compact", "iupac_condensed", "iupac_extended", "wurcs"]
     },
     "glycowork": {
-      "version": "1.10.0 (git dev@d132d2fda005)",
+      "version": "1.10.0 (git dev@d7f31a5d9607)",
       "formats": ["glycam_iupac", "glycoct", "gwb", "iupac_compact", "iupac_condensed", "iupac_extended", "wurcs"]
     },
     "glypy": {
@@ -72,12 +72,12 @@
     "fingerprint_semantics": "Rooted residue/linkage graph, substituents, alditol state, floating components, and candidate-parent relations."
   },
   "glycan_format_converter": {
-    "generated_at": "2026-08-16T14:19:23+0800",
+    "generated_at": "2026-08-18T00:45:10+0800",
     "jar": "GlycanFormatConverter-cli.jar",
     "jar_sha256": "88c24e0bdea5c75964d131e84e918cd99d8eed2d6edebaaf90bc63259b4f8f4d",
     "version": "\nGlycanFormatConverter-cli.jar: 2.10.3\n\nwurcsframework: 1.2.16",
     "reused_cache": "gfc-reference-cache.rds",
     "reused_cache_verified": true,
-    "new_conversion_elapsed_seconds": 19.963
+    "new_conversion_elapsed_seconds": 16.268
   }
 }
