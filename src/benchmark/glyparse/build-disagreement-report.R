@@ -75,6 +75,7 @@ reason_summary$comparators <- vapply(
   integer(1)
 )
 reason_summary <- reason_summary[order(reason_summary$priority), ]
+reason_summary <- reason_summary[reason_summary$rows > 0L, , drop = FALSE]
 
 component_summary <- definitions
 component_summary$rows <- vapply(
@@ -88,6 +89,15 @@ component_summary$share <- component_summary$rows / total_mismatches
 component_summary <- component_summary[
   order(-component_summary$rows, component_summary$priority),
 ]
+component_summary <- component_summary[
+  component_summary$rows > 0L,
+  ,
+  drop = FALSE
+]
+component_primary_rows <- reason_summary$rows[
+  match(component_summary$mismatch_class, reason_summary$mismatch_class)
+]
+component_primary_rows[is.na(component_primary_rows)] <- 0L
 
 tool_reason_summary <- aggregate(
   list(rows = rep(1L, total_mismatches)),
@@ -343,30 +353,34 @@ definition_body <- paste(
   ),
   collapse = "\n"
 )
+top_primary <- head(
+  reason_summary[order(-reason_summary$rows, reason_summary$priority), ],
+  3L
+)
+top_primary_labels <- paste0("**", top_primary$mismatch_reason, "**")
+top_primary_text <- if (length(top_primary_labels) == 1L) {
+  top_primary_labels
+} else {
+  paste0(
+    paste(head(top_primary_labels, -1L), collapse = ", "),
+    ", and ",
+    tail(top_primary_labels, 1L)
+  )
+}
 primary_body <- paste(
   c(
-    "## Reducing-end and composition differences dominate",
+    "## Three primary mismatch classes dominate",
     "",
     paste0(
       "The ranked chart partitions all ",
       format_integer(total_mismatches),
-      " rows into exactly one primary class. Reducing-end alditol, internal ",
-      "linkage/anomer, and residue/substituent composition together account ",
-      "for **",
-      sprintf(
-        "%.1f%%",
-        100 *
-          sum(reason_summary$share[
-            reason_summary$mismatch_class %in%
-              c(
-                "reducing_end_alditol",
-                "linkage_or_anomer",
-                "residue_composition"
-              )
-          ])
-      ),
-      "** of mismatches. This concentrates manual review on information-loss ",
-      "and chemistry-normalization behavior before rarer topology cases."
+      " rows into exactly one primary class. The three largest classes—",
+      top_primary_text,
+      "—together account for **",
+      sprintf("%.1f%%", 100 * sum(top_primary$share)),
+      "** of mismatches. This concentrates manual review on the dominant ",
+      "information-loss and chemistry-normalization behavior before rarer ",
+      "cases."
     )
   ),
   collapse = "\n"
@@ -414,6 +428,21 @@ limitations_body <- paste(
   ),
   collapse = "\n"
 )
+rare_review_labels <- tolower(reason_summary$mismatch_reason[
+  reason_summary$mismatch_class %in%
+    c("topology_or_attachment", "label_assignment_on_same_shape")
+])
+rare_review_line <- if (length(rare_review_labels) == 0L) {
+  "- No rare topology or same-shape label-assignment primary class was observed in this run."
+} else {
+  paste0(
+    "- Manually inspect the rare observed ",
+    paste(rare_review_labels, collapse = " and "),
+    if (length(rare_review_labels) == 1L) " class" else " classes",
+    " first because these differences are more likely to reveal structural ",
+    "conversion defects."
+  )
+}
 next_steps_body <- paste(
   c(
     "## Recommended next steps",
@@ -421,7 +450,7 @@ next_steps_body <- paste(
     "- Review reducing-end alditol differences in glycowork separately from ordinary residue-composition differences.",
     "- Review glypy residue/substituent composition differences for vocabulary or serialization loss.",
     "- Review GlycanFormatConverter reducing-end-anomer differences with the strict contract and keep fallback evidence separate.",
-    "- Manually inspect the rare topology/attachment and same-shape label-assignment classes first because they are more likely to reveal structural conversion defects."
+    rare_review_line
   ),
   collapse = "\n"
 )
@@ -933,7 +962,7 @@ chart_map <- c(
   paste0(
     "| Primary reasons | How are all mismatch rows partitioned? | ",
     "Comparison / ranked bar | mismatch_reason, rows, share | ",
-    "Reducing-end and composition reasons dominate | Single blue root; ",
+    "A small number of primary reasons dominate | Single blue root; ",
     "direct axis labels |"
   ),
   paste0(
@@ -964,15 +993,7 @@ stopifnot(
     total_equivalent_comparisons + total_mismatches,
   sum(reason_summary$rows) == total_mismatches,
   all(reason_summary$rows > 0L),
-  all(
-    component_summary$rows >=
-      reason_summary$rows[
-        match(
-          component_summary$mismatch_class,
-          reason_summary$mismatch_class
-        )
-      ]
-  ),
+  all(component_summary$rows >= component_primary_rows),
   sum(tool_reason_summary$rows) == total_mismatches,
   sum(format_reason_summary$rows) == total_mismatches,
   nrow(example_rows) == nrow(reason_summary),
