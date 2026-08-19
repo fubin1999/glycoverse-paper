@@ -3,11 +3,11 @@
 # Reproducible entry point for the glyparse corpus benchmark.
 #
 # Usage:
-#   Rscript src/benchmark/glyparse.R
-#   Rscript src/benchmark/glyparse.R --stage glyparse
-#   Rscript src/benchmark/glyparse.R --stage external
-#   Rscript src/benchmark/glyparse.R --stage adjudicate
-#   Rscript src/benchmark/glyparse.R --stage report
+#   Rscript src/benchmark/glyparse/glyparse.R
+#   Rscript src/benchmark/glyparse/glyparse.R --stage glyparse
+#   Rscript src/benchmark/glyparse/glyparse.R --stage external
+#   Rscript src/benchmark/glyparse/glyparse.R --stage adjudicate
+#   Rscript src/benchmark/glyparse/glyparse.R --stage report
 
 script_path <- sub(
   "^--file=",
@@ -15,7 +15,7 @@ script_path <- sub(
   grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)[[1L]]
 )
 script_dir <- dirname(normalizePath(script_path, mustWork = TRUE))
-module_dir <- file.path(script_dir, "glyparse")
+module_dir <- script_dir
 
 arguments <- commandArgs(trailingOnly = TRUE)
 stage <- "all"
@@ -23,7 +23,7 @@ if (length(arguments) > 0L) {
   if (!identical(arguments[[1L]], "--stage") || length(arguments) != 2L) {
     stop(
       paste0(
-        "Usage: Rscript src/benchmark/glyparse.R ",
+        "Usage: Rscript src/benchmark/glyparse/glyparse.R ",
         "[--stage glyparse|external|adjudicate|report]"
       )
     )

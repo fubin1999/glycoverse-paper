@@ -39,16 +39,16 @@ evenly spaced sample, and preserves one result row per source row.
 From the repository root:
 
 ```sh
-Rscript src/benchmark/glyparse.R
+Rscript src/benchmark/glyparse/glyparse.R
 ```
 
 The stages can be resumed independently:
 
 ```sh
-Rscript src/benchmark/glyparse.R --stage glyparse
-Rscript src/benchmark/glyparse.R --stage external
-Rscript src/benchmark/glyparse.R --stage adjudicate
-Rscript src/benchmark/glyparse.R --stage report
+Rscript src/benchmark/glyparse/glyparse.R --stage glyparse
+Rscript src/benchmark/glyparse/glyparse.R --stage external
+Rscript src/benchmark/glyparse/glyparse.R --stage adjudicate
+Rscript src/benchmark/glyparse/glyparse.R --stage report
 ```
 
 Environment overrides:
