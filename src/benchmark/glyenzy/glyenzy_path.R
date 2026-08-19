@@ -5,6 +5,7 @@ library(igraph)
 
 glycan <- "Neu5Ac(a2-3)Gal(b1-3)[Neu5Ac(a2-3)Gal(b1-4)[Fuc(a1-3)]GlcNAc(b1-6)]GalNAc(a1-"
 path <- trace_biosynthesis(glycan)
+class(path) <- "igraph"
 
 pdf("results/figures/glyenzy_path.pdf", width = 6, height = 6)
 plot(
