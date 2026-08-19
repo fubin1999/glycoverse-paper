@@ -6,21 +6,21 @@
 "glycoct","residue_composition","Residue or substituent composition",5308,34836,0.152371110345619
 "glycoct","topology_or_attachment","Topology or residue attachment",189,34836,0.0054254219772649
 "glycoct","reducing_end_alditol","Reducing-end alditol state",6,34836,0.00017223561832587
-"gwb","linkage_or_anomer","Internal linkage or anomer inventory",8377,24556,0.341138621925395
-"gwb","floating_structure_or_domain","Floating component or candidate-parent domain",6422,24556,0.261524678286366
-"gwb","residue_composition","Residue or substituent composition",4408,24556,0.179508063202476
-"gwb","reducing_end_alditol","Reducing-end alditol state",3596,24556,0.14644078840202
-"gwb","topology_or_attachment","Topology or residue attachment",1753,24556,0.0713878481837433
-"iupac_compact","linkage_or_anomer","Internal linkage or anomer inventory",4497,6944,0.647609447004608
-"iupac_compact","residue_composition","Residue or substituent composition",2144,6944,0.308755760368664
-"iupac_compact","topology_or_attachment","Topology or residue attachment",303,6944,0.0436347926267281
+"gwb","linkage_or_anomer","Internal linkage or anomer inventory",9328,23823,0.391554380220795
+"gwb","floating_structure_or_domain","Floating component or candidate-parent domain",6421,23823,0.269529446333375
+"gwb","residue_composition","Residue or substituent composition",4429,23823,0.185912773370272
+"gwb","reducing_end_alditol","Reducing-end alditol state",3596,23823,0.150946564244638
+"gwb","topology_or_attachment","Topology or residue attachment",49,23823,0.0020568358309197
+"iupac_compact","linkage_or_anomer","Internal linkage or anomer inventory",4589,6856,0.669340723453909
+"iupac_compact","residue_composition","Residue or substituent composition",2144,6856,0.312718786464411
+"iupac_compact","topology_or_attachment","Topology or residue attachment",123,6856,0.0179404900816803
 "iupac_extended","residue_composition","Residue or substituent composition",2988,3753,0.796163069544365
 "iupac_extended","linkage_or_anomer","Internal linkage or anomer inventory",734,3753,0.195576871835865
 "iupac_extended","topology_or_attachment","Topology or residue attachment",19,3753,0.00506261657340794
 "iupac_extended","reducing_end_anomer","Reducing-end anomer or linkage",12,3753,0.00319744204636291
-"wurcs","linkage_or_anomer","Internal linkage or anomer inventory",10465,22241,0.47052740434333
-"wurcs","residue_composition","Residue or substituent composition",7100,22241,0.31923025043838
-"wurcs","floating_structure_or_domain","Floating component or candidate-parent domain",4368,22241,0.196394047030259
-"wurcs","topology_or_attachment","Topology or residue attachment",234,22241,0.0105211096623353
-"wurcs","reducing_end_anomer","Reducing-end anomer or linkage",59,22241,0.00265275841913583
-"wurcs","reducing_end_alditol","Reducing-end alditol state",15,22241,0.000674430106559957
+"wurcs","linkage_or_anomer","Internal linkage or anomer inventory",10471,22215,0.471348188161152
+"wurcs","residue_composition","Residue or substituent composition",7103,22215,0.319738915147423
+"wurcs","floating_structure_or_domain","Floating component or candidate-parent domain",4376,22215,0.196984019806437
+"wurcs","topology_or_attachment","Topology or residue attachment",191,22215,0.00859779428314202
+"wurcs","reducing_end_anomer","Reducing-end anomer or linkage",59,22215,0.00265586315552555
+"wurcs","reducing_end_alditol","Reducing-end alditol state",15,22215,0.000675219446320054

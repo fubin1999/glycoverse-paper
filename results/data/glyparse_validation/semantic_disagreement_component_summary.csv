@@ -1,7 +1,7 @@
 "mismatch_class","mismatch_reason","definition","priority","rows","share"
-"linkage_or_anomer","Internal linkage or anomer inventory","Internal linkage positions or anomer assignments differ as a multiset.",6,63121,0.68204263779485
-"residue_composition","Residue or substituent composition","Residue identities or residue-bound substituent composition differ.",4,35621,0.38489632294942
-"floating_structure_or_domain","Floating component or candidate-parent domain","Floating components, floating substituents, or their candidate-parent domains differ.",2,20924,0.226090526975483
-"topology_or_attachment","Topology or residue attachment","The canonical graph topology or residue-to-residue attachment pattern differs.",5,10692,0.115530487211903
-"reducing_end_anomer","Reducing-end anomer or linkage","The strict comparison disagrees at the reducing-end anomer or linkage token.",3,7848,0.0848001555966158
-"reducing_end_alditol","Reducing-end alditol state","The two glycans disagree on whether the reducing residue is an alditol.",1,3617,0.0390828443925789
+"linkage_or_anomer","Internal linkage or anomer inventory","Internal linkage positions or anomer assignments differ as a multiset.",6,62805,0.684896401308615
+"residue_composition","Residue or substituent composition","Residue identities or residue-bound substituent composition differ.",4,35649,0.388756815703381
+"floating_structure_or_domain","Floating component or candidate-parent domain","Floating components, floating substituents, or their candidate-parent domains differ.",2,20931,0.228255179934569
+"topology_or_attachment","Topology or residue attachment","The canonical graph topology or residue-to-residue attachment pattern differs.",5,8538,0.0931079607415485
+"reducing_end_anomer","Reducing-end anomer or linkage","The strict comparison disagrees at the reducing-end anomer or linkage token.",3,7848,0.0855834242093784
+"reducing_end_alditol","Reducing-end alditol state","The two glycans disagree on whether the reducing residue is an alditol.",1,3617,0.0394438386041439

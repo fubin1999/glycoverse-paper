@@ -5,7 +5,7 @@
     "surface": "report",
     "title": "glyparse corpus validation and benchmark",
     "description": "Row-level validation of glyparse against accession references and three external glycan converters.",
-    "generatedAt": "2026-08-18T01:26:21+0800",
+    "generatedAt": "2026-08-19T12:37:00+0800",
     "cards": [
       {
         "id": "rows",
@@ -427,7 +427,7 @@
       {
         "id": "scope",
         "type": "markdown",
-        "body": "## Scope and definitions\n\nIUPAC-condensed input is assessed with all four tools for parse coverage and with glyparse for performance, but is excluded from correctness adjudication as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter 2.10.3, glycowork 1.10.0 (git dev@d7f31a5d9607), and glypy 1.0.17.\n\nA semantic comparison requires both sides to normalize successfully through the current `parse_iupac_condensed()`. Chemically fixed donor positions are then filled with `fill_anomer_pos()`, and equality is tested with an isomorphism-invariant labeled-graph fingerprint, so implicit donor positions and alternate serializations of symmetric branches compare fairly. Accession references and GlycanFormatConverter retain the reducing-end anomer. Because glycowork and glypy do not encode it, only that graph-level attribute is ignored for those comparisons. This makes `Gal(b1-3)GalNAc(a1-` and `Gal(b1-3)GalNAc(?1-` equivalent while retaining internal anomers/linkages, residue identity, substituents, topology, reducing-end alditol state, floating components, and candidate-parent domains."
+        "body": "## Scope and definitions\n\nIUPAC-condensed input is assessed with all four tools for parse coverage and with glyparse for performance, but is excluded from correctness adjudication as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter 2.10.3, glycowork 1.10.0 (git 105f416969f3a7d06e4e3fb433e3e08460ce918e@105f416969f3), and glypy 1.0.17.\n\nA semantic comparison requires both sides to normalize successfully through the current `parse_iupac_condensed()`. Chemically fixed donor positions are then filled with `fill_anomer_pos()`, and equality is tested with an isomorphism-invariant labeled-graph fingerprint, so implicit donor positions and alternate serializations of symmetric branches compare fairly. Accession references and GlycanFormatConverter retain the reducing-end anomer. Because glycowork and glypy do not encode it, only that graph-level attribute is ignored for those comparisons. This makes `Gal(b1-3)GalNAc(a1-` and `Gal(b1-3)GalNAc(?1-` equivalent while retaining internal anomers/linkages, residue identity, substituents, topology, reducing-end alditol state, floating components, and candidate-parent domains."
       },
       {
         "id": "methodology",
@@ -448,7 +448,7 @@
       {
         "id": "sequence_coverage_findings",
         "type": "markdown",
-        "body": "## Direct sequence coverage keeps fallback evidence separate\n\nThe row-level coverage report contains one record for every source sequence. `parsed` and `failed` are direct tests of that exact source string. `fallback_only` means the available conversion used an accession-matched WURCS sequence instead, and `not_tested` means the tool was not run for that source format. Boolean `can_parse` values are therefore populated only for direct tests. For glypy IUPAC-condensed input, the terminal open reducing-end token is removed before its simple-IUPAC parser is called, matching the agreed convention that glypy does not encode reducing-end anomers; the row retains this evidence scope.\n\n- **glyparse:** parsed 220,330 of 240,267 directly tested rows (91.70%); 0 fallback-only and 0 not tested.\n- **GlycanFormatConverter:** parsed 101,938 of 158,068 directly tested rows (64.49%); 82,199 fallback-only and 0 not tested.\n- **glypy:** parsed 165,658 of 208,848 directly tested rows (79.32%); 31,419 fallback-only and 0 not tested.\n- **glycowork:** parsed 235,246 of 240,267 directly tested rows (97.91%); 0 fallback-only and 0 not tested.",
+        "body": "## Direct sequence coverage keeps fallback evidence separate\n\nThe row-level coverage report contains one record for every source sequence. `parsed` and `failed` are direct tests of that exact source string. `fallback_only` means the available conversion used an accession-matched WURCS sequence instead, and `not_tested` means the tool was not run for that source format. Boolean `can_parse` values are therefore populated only for direct tests. For glypy IUPAC-condensed input, the terminal open reducing-end token is removed before its simple-IUPAC parser is called, matching the agreed convention that glypy does not encode reducing-end anomers; the row retains this evidence scope.\n\n- **glyparse:** parsed 220,330 of 240,267 directly tested rows (91.70%); 0 fallback-only and 0 not tested.\n- **GlycanFormatConverter:** parsed 101,938 of 158,068 directly tested rows (64.49%); 82,199 fallback-only and 0 not tested.\n- **glypy:** parsed 165,658 of 208,848 directly tested rows (79.32%); 31,419 fallback-only and 0 not tested.\n- **glycowork:** parsed 236,175 of 240,267 directly tested rows (98.30%); 0 fallback-only and 0 not tested.",
         "sourceId": "sequence_coverage_summary"
       },
       {
@@ -503,7 +503,7 @@
   },
   "snapshot": {
     "version": 1,
-    "generatedAt": "2026-08-18T01:26:21+0800",
+    "generatedAt": "2026-08-19T12:37:00+0800",
     "status": "ready",
     "datasets": {
       "headline": [
@@ -515,7 +515,7 @@
           "reference_available": 104619,
           "reference_agreement_rate": 1,
           "supported_glyparse_outlier_rows": 0,
-          "unresolved_rows": 30795
+          "unresolved_rows": 29069
         }
       ],
       "format_summary": [
@@ -561,9 +561,9 @@
           "reference_available": 19621,
           "reference_equivalent": 19621,
           "reference_semantic_difference": 0,
-          "validated_or_supported": 34902,
+          "validated_or_supported": 36679,
           "glyparse_outlier": 0,
-          "unresolved": 13126,
+          "unresolved": 11544,
           "parse_failure_rate": 0.02534462386766,
           "reference_agreement_rate": 1
         },
@@ -577,9 +577,9 @@
           "reference_available": 19457,
           "reference_equivalent": 19457,
           "reference_semantic_difference": 0,
-          "validated_or_supported": 19882,
+          "validated_or_supported": 20029,
           "glyparse_outlier": 0,
-          "unresolved": 4311,
+          "unresolved": 4164,
           "parse_failure_rate": 0,
           "reference_agreement_rate": 1
         },
@@ -625,9 +625,9 @@
           "reference_available": 19621,
           "reference_equivalent": 19621,
           "reference_semantic_difference": 0,
-          "validated_or_supported": 42444,
+          "validated_or_supported": 42450,
           "glyparse_outlier": 0,
-          "unresolved": 5104,
+          "unresolved": 5107,
           "parse_failure_rate": 0.1717525006759,
           "reference_agreement_rate": 1
         }
@@ -655,7 +655,7 @@
         {
           "format": "glycam_iupac",
           "tool": "glycowork",
-          "tool_version": "1.10.0 (git dev@d7f31a5d9607)",
+          "tool_version": "1.10.0 (git 105f416969f3a7d06e4e3fb433e3e08460ce918e@105f416969f3)",
           "comparison_contract": "graph_isomorphism_ignore_terminal_reducing_end_token",
           "rows": 7226,
           "converted": 7226,
@@ -712,7 +712,7 @@
         {
           "format": "glycoct",
           "tool": "glycowork",
-          "tool_version": "1.10.0 (git dev@d7f31a5d9607)",
+          "tool_version": "1.10.0 (git 105f416969f3a7d06e4e3fb433e3e08460ce918e@105f416969f3)",
           "comparison_contract": "graph_isomorphism_ignore_terminal_reducing_end_token",
           "rows": 59181,
           "converted": 58989,
@@ -769,20 +769,20 @@
         {
           "format": "gwb",
           "tool": "glycowork",
-          "tool_version": "1.10.0 (git dev@d7f31a5d9607)",
+          "tool_version": "1.10.0 (git 105f416969f3a7d06e4e3fb433e3e08460ce918e@105f416969f3)",
           "comparison_contract": "graph_isomorphism_ignore_terminal_reducing_end_token",
           "rows": 50780,
-          "converted": 47921,
-          "conversion_failed": 2859,
-          "normalized": 43973,
-          "normalization_failed": 3948,
-          "comparable_with_glyparse": 43971,
-          "equivalent_to_glyparse": 29490,
-          "different_from_glyparse": 14481,
+          "converted": 48508,
+          "conversion_failed": 2272,
+          "normalized": 45692,
+          "normalization_failed": 2816,
+          "comparable_with_glyparse": 45684,
+          "equivalent_to_glyparse": 31936,
+          "different_from_glyparse": 13748,
           "direct_rows": 50780,
           "fallback_rows": 0,
-          "normalized_rate": 0.8659511618748,
-          "comparable_rate": 0.8659117762899,
+          "normalized_rate": 0.8998030720756,
+          "comparable_rate": 0.8996455297361,
           "format_label": "GlycoWorkbench"
         },
         {
@@ -826,20 +826,20 @@
         {
           "format": "iupac_compact",
           "tool": "glycowork",
-          "tool_version": "1.10.0 (git dev@d7f31a5d9607)",
+          "tool_version": "1.10.0 (git 105f416969f3a7d06e4e3fb433e3e08460ce918e@105f416969f3)",
           "comparison_contract": "graph_isomorphism_ignore_terminal_reducing_end_token",
           "rows": 24193,
-          "converted": 23902,
-          "conversion_failed": 291,
-          "normalized": 19202,
-          "normalization_failed": 4700,
-          "comparable_with_glyparse": 19202,
-          "equivalent_to_glyparse": 15160,
-          "different_from_glyparse": 4042,
+          "converted": 24193,
+          "conversion_failed": 0,
+          "normalized": 19329,
+          "normalization_failed": 4864,
+          "comparable_with_glyparse": 19329,
+          "equivalent_to_glyparse": 15375,
+          "different_from_glyparse": 3954,
           "direct_rows": 24193,
           "fallback_rows": 0,
-          "normalized_rate": 0.7937006572149,
-          "comparable_rate": 0.7937006572149,
+          "normalized_rate": 0.7989501095358,
+          "comparable_rate": 0.7989501095358,
           "format_label": "IUPAC-compact"
         },
         {
@@ -883,7 +883,7 @@
         {
           "format": "iupac_condensed",
           "tool": "glycowork",
-          "tool_version": "1.10.0 (git dev@d7f31a5d9607)",
+          "tool_version": "1.10.0 (git 105f416969f3a7d06e4e3fb433e3e08460ce918e@105f416969f3)",
           "comparison_contract": "graph_isomorphism_ignore_terminal_reducing_end_token",
           "rows": 19621,
           "converted": 19621,
@@ -940,7 +940,7 @@
         {
           "format": "iupac_extended",
           "tool": "glycowork",
-          "tool_version": "1.10.0 (git dev@d7f31a5d9607)",
+          "tool_version": "1.10.0 (git 105f416969f3a7d06e4e3fb433e3e08460ce918e@105f416969f3)",
           "comparison_contract": "graph_isomorphism_ignore_terminal_reducing_end_token",
           "rows": 20082,
           "converted": 20082,
@@ -997,20 +997,20 @@
         {
           "format": "wurcs",
           "tool": "glycowork",
-          "tool_version": "1.10.0 (git dev@d7f31a5d9607)",
+          "tool_version": "1.10.0 (git 105f416969f3a7d06e4e3fb433e3e08460ce918e@105f416969f3)",
           "comparison_contract": "graph_isomorphism_ignore_terminal_reducing_end_token",
           "rows": 59184,
-          "converted": 57505,
-          "conversion_failed": 1679,
-          "normalized": 52675,
-          "normalization_failed": 4830,
-          "comparable_with_glyparse": 46804,
-          "equivalent_to_glyparse": 33199,
-          "different_from_glyparse": 13605,
+          "converted": 57556,
+          "conversion_failed": 1628,
+          "normalized": 52747,
+          "normalization_failed": 4809,
+          "comparable_with_glyparse": 46857,
+          "equivalent_to_glyparse": 33278,
+          "different_from_glyparse": 13579,
           "direct_rows": 59184,
           "fallback_rows": 0,
-          "normalized_rate": 0.8900209516085,
-          "comparable_rate": 0.7908218437416,
+          "normalized_rate": 0.8912374966207,
+          "comparable_rate": 0.7917173560422,
           "format_label": "WURCS"
         },
         {
@@ -1258,11 +1258,11 @@
           "tool": "glycowork",
           "rows": 50780,
           "directly_tested": 50780,
-          "parsed": 47921,
-          "failed": 2859,
+          "parsed": 48508,
+          "failed": 2272,
           "fallback_only": 0,
           "not_tested": 0,
-          "direct_parse_rate": 0.9436983064198
+          "direct_parse_rate": 0.9552579755809
         },
         {
           "format": "iupac_compact",
@@ -1306,11 +1306,11 @@
           "tool": "glycowork",
           "rows": 24193,
           "directly_tested": 24193,
-          "parsed": 23902,
-          "failed": 291,
+          "parsed": 24193,
+          "failed": 0,
           "fallback_only": 0,
           "not_tested": 0,
-          "direct_parse_rate": 0.9879717273592
+          "direct_parse_rate": 1
         },
         {
           "format": "iupac_condensed",
@@ -1450,11 +1450,11 @@
           "tool": "glycowork",
           "rows": 59184,
           "directly_tested": 59184,
-          "parsed": 57505,
-          "failed": 1679,
+          "parsed": 57556,
+          "failed": 1628,
           "fallback_only": 0,
           "not_tested": 0,
-          "direct_parse_rate": 0.9716308461746
+          "direct_parse_rate": 0.9724925655583
         }
       ],
       "reference_review": [],

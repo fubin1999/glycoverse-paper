@@ -1,7 +1,7 @@
 "mismatch_class","mismatch_reason","definition","priority","rows","share","unique_accessions","formats","comparators"
-"reducing_end_alditol","Reducing-end alditol state","The two glycans disagree on whether the reducing residue is an alditol.",1,3617,0.0390828443925789,3602,3,3
-"floating_structure_or_domain","Floating component or candidate-parent domain","Floating components, floating substituents, or their candidate-parent domains differ.",2,20757,0.22428603844533,5949,3,3
-"reducing_end_anomer","Reducing-end anomer or linkage","The strict comparison disagrees at the reducing-end anomer or linkage token.",3,7845,0.0847677396349963,7840,3,1
-"residue_composition","Residue or substituent composition","Residue identities or residue-bound substituent composition differ.",4,22165,0.239499929765416,7888,6,3
-"topology_or_attachment","Topology or residue attachment","The canonical graph topology or residue-to-residue attachment pattern differs.",5,2498,0.0269916907085049,2008,5,2
-"linkage_or_anomer","Internal linkage or anomer inventory","Internal linkage positions or anomer assignments differ as a multiset.",6,35665,0.385371757053173,11220,5,3
+"reducing_end_alditol","Reducing-end alditol state","The two glycans disagree on whether the reducing residue is an alditol.",1,3617,0.0394438386041439,3602,3,3
+"floating_structure_or_domain","Floating component or candidate-parent domain","Floating components, floating substituents, or their candidate-parent domains differ.",2,20764,0.226434023991276,5946,3,3
+"reducing_end_anomer","Reducing-end anomer or linkage","The strict comparison disagrees at the reducing-end anomer or linkage token.",3,7845,0.0855507088331516,7840,3,1
+"residue_composition","Residue or substituent composition","Residue identities or residue-bound substituent composition differ.",4,22189,0.241973827699019,7896,6,3
+"topology_or_attachment","Topology or residue attachment","The canonical graph topology or residue-to-residue attachment pattern differs.",5,571,0.006226826608506,207,5,2
+"linkage_or_anomer","Internal linkage or anomer inventory","Internal linkage positions or anomer assignments differ as a multiset.",6,36714,0.400370774263904,11251,5,3

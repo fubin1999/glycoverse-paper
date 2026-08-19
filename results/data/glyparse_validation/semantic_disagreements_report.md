@@ -2,11 +2,11 @@
 
 ## Technical summary
 
-The benchmark contains **720,801** external-tool/source comparison opportunities. **455,069** produced normalized glycans on both sides and entered semantic comparison: **362,522** matched and **92,547** differed, a **20.3%** mismatch rate among comparable comparisons.
+The benchmark contains **720,801** external-tool/source comparison opportunities. **456,962** produced normalized glycans on both sides and entered semantic comparison: **365,262** matched and **91,700** differed, a **20.1%** mismatch rate among comparable comparisons.
 
-The classified mismatch ledger covers **28,291** GlyTouCan accessions. Every mismatch row has one primary reason and one or more component flags; no row is unclassified.
+The classified mismatch ledger covers **27,708** GlyTouCan accessions. Every mismatch row has one primary reason and one or more component flags; no row is unclassified.
 
-The largest primary class is **Internal linkage or anomer inventory** with **35,665** rows (**38.5%**). **32,316** rows (**34.9%**) carry more than one component flag, so the overlapping component totals intentionally exceed the ledger row count.
+The largest primary class is **Internal linkage or anomer inventory** with **36,714** rows (**40.0%**). **30,937** rows (**33.7%**) carry more than one component flag, so the overlapping component totals intentionally exceed the ledger row count.
 
 ## Classification contract
 
@@ -16,19 +16,19 @@ The classes describe how the two normalized glycan graphs differ. They do not by
 
 ## Three primary mismatch classes dominate
 
-The ranked chart partitions all 92,547 rows into exactly one primary class. The three largest classes—**Internal linkage or anomer inventory**, **Residue or substituent composition**, and **Floating component or candidate-parent domain**—together account for **84.9%** of mismatches. This concentrates manual review on the dominant information-loss and chemistry-normalization behavior before rarer cases.
+The ranked chart partitions all 91,700 rows into exactly one primary class. The three largest classes—**Internal linkage or anomer inventory**, **Residue or substituent composition**, and **Floating component or candidate-parent domain**—together account for **86.9%** of mismatches. This concentrates manual review on the dominant information-loss and chemistry-normalization behavior before rarer cases.
 
 ## The mismatch mix is tool-specific
 
 The grouped chart uses the same primary partition for each comparator; its bars should be read as counts, not conversion coverage. Direct and accession-matched fallback counts remain separate in the exact table.
 
 - **GlycanFormatConverter:** Reducing-end anomer or linkage is the largest class at 7,845 rows (63.6% of this tool's mismatches).
-- **glycowork:** Internal linkage or anomer inventory is the largest class at 31,525 rows (67.4% of this tool's mismatches).
+- **glycowork:** Internal linkage or anomer inventory is the largest class at 32,574 rows (71.0% of this tool's mismatches).
 - **glypy:** Residue or substituent composition is the largest class at 17,636 rows (52.7% of this tool's mismatches).
 
 ## Component flags preserve compound differences
 
-A row may differ in composition, linkage, alditol state, topology, and floating metadata simultaneously. The component table therefore uses overlapping incidence counts: **63,121** rows include the most common component, **Internal linkage or anomer inventory**. These counts diagnose what changed without forcing a single-cause interpretation.
+A row may differ in composition, linkage, alditol state, topology, and floating metadata simultaneously. The component table therefore uses overlapping incidence counts: **62,805** rows include the most common component, **Internal linkage or anomer inventory**. These counts diagnose what changed without forcing a single-cause interpretation.
 
 ## Representative rows make each class auditable
 

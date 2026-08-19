@@ -12,7 +12,7 @@ A separate sequence-level coverage ledger records whether each of the four teste
 
 ## Scope and definitions
 
-IUPAC-condensed input is assessed with all four tools for parse coverage and with glyparse for performance, but is excluded from correctness adjudication as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter 2.10.3, glycowork 1.10.0 (git dev@d7f31a5d9607), and glypy 1.0.17.
+IUPAC-condensed input is assessed with all four tools for parse coverage and with glyparse for performance, but is excluded from correctness adjudication as requested. All other formats are checked against an accession-matched IUPAC-condensed corpus where available and against GlycanFormatConverter 2.10.3, glycowork 1.10.0 (git 105f416969f3a7d06e4e3fb433e3e08460ce918e@105f416969f3), and glypy 1.0.17.
 
 A semantic comparison requires both sides to normalize successfully through the current `parse_iupac_condensed()`. Chemically fixed donor positions are then filled with `fill_anomer_pos()`, and equality is tested with an isomorphism-invariant labeled-graph fingerprint, so implicit donor positions and alternate serializations of symmetric branches compare fairly. Accession references and GlycanFormatConverter retain the reducing-end anomer. Because glycowork and glypy do not encode it, only that graph-level attribute is ignored for those comparisons. This makes `Gal(b1-3)GalNAc(a1-` and `Gal(b1-3)GalNAc(?1-` equivalent while retaining internal anomers/linkages, residue identity, substituents, topology, reducing-end alditol state, floating components, and candidate-parent domains.
 
@@ -29,7 +29,7 @@ The row-level coverage report contains one record for every source sequence. `pa
 - **glyparse:** parsed 220,330 of 240,267 directly tested rows (91.70%); 0 fallback-only and 0 not tested.
 - **GlycanFormatConverter:** parsed 101,938 of 158,068 directly tested rows (64.49%); 82,199 fallback-only and 0 not tested.
 - **glypy:** parsed 165,658 of 208,848 directly tested rows (79.32%); 31,419 fallback-only and 0 not tested.
-- **glycowork:** parsed 235,246 of 240,267 directly tested rows (97.91%); 0 fallback-only and 0 not tested.
+- **glycowork:** parsed 236,175 of 240,267 directly tested rows (98.30%); 0 fallback-only and 0 not tested.
 
 ## Findings
 
