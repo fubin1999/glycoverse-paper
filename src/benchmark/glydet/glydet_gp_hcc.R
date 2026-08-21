@@ -16,6 +16,8 @@ lewis_dea_res <- lewis_exp |>
   gly_ttest() |>
   get_tidy_result()
 
+write_csv(lewis_dea_res, "results/data/lewis_dea_res.csv")
+
 lewis_dea_res |> filter(p_adj < 0.05)
 
 plot_volcano <- function(dea_res) {
