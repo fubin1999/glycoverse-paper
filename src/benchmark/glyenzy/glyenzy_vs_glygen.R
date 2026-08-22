@@ -14,6 +14,10 @@ glydb_glycans <- glydb::glydb_data |>
   filter(
     glycan_type %in% c("N", "O-GalNAc", "O-Man", "O-Fuc", "O-Glc"),
     str_detect(species, fixed("Homo sapiens")),
+    !has_floating_parts(glycan_structure),
+    !has_floating_substituents(glycan_structure),
+    get_structure_level(glycan_structure) == "intact",
+    get_mono_type(glycan_composition) == "concrete",
     remove_substituents(glycan_structure) == glycan_structure,
     count_mono(glycan_composition, "Neu5Gc") == 0
   ) |>
@@ -52,6 +56,7 @@ write_csv(anno_df, "results/data/glyenzy_vs_glygen.csv")
 anno_df <- read_csv("results/data/glyenzy_vs_glygen.csv")
 
 anno_df |>
+  filter(!str_starts(enzyme_gene, "ALG")) |>
   summarise(accuracy = mean(glyenzy == glygen))
 
 conf_mat <- anno_df |>
@@ -83,7 +88,7 @@ discrepancy_plot <- anno_df |>
   ggplot(aes(x = reorder(enzyme_gene, desc(n)), y = n, fill = discrepancy)) +
   geom_col(position = "stack") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
-  scale_fill_manual(values = c("GlyGen only" = "#eca567", "glyenzy only" = "#79add2")) +
+  scale_fill_manual(values = c("GlyGen only" = "#f9c22b", "glyenzy only" = "#79add2")) +
   labs(x = "Enzyme gene", y = "Number of discrepancies", fill = "Discrepancy type") +
   guides(fill = guide_legend(position = "inside")) +
   theme_classic() +
