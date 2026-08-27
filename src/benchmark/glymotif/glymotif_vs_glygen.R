@@ -26,9 +26,6 @@ res_df <- glymotif_result |>
   mutate(glygen = if_else(is.na(glygen), FALSE, glygen)) |>
   relocate(glytoucan_ac, glycan_structure, motif_name, glymotif, glygen)
 
-write_csv(res_df, "results/data/glymotif_vs_glygen.csv")
-# res_df <- read_csv("results/data/glymotif_vs_glygen.csv")
-
 filtered_res_df <- res_df |>
   filter(sum(glygen) > 0, .by = motif_name) |>
   filter(sum(glygen) > 0, .by = glycan_structure)
@@ -42,3 +39,5 @@ filtered_res_df |>
 filtered_res_df |>
   filter(!glygen, glymotif) |>
   select(glytoucan_ac, motif_name)
+
+write_csv(filtered_res_df, "results/data/glymotif_vs_glygen.csv")
