@@ -127,7 +127,7 @@ flux_data <- motif_exp |>
   pivot_wider(names_from = motif, values_from = value) |>
   mutate(
     flux_lacnac = LacNAc / GlcNAc,
-    flux_sia_lacnac = `Sialy-LacNAc` / LacNAc,
+    flux_sia_lacnac = `Sialyl-LacNAc` / LacNAc,
     .keep = "unused"
   ) |>
   pivot_longer(cols = -c(sample, group), names_to = "flux", values_to = "value", names_prefix = "flux_")
